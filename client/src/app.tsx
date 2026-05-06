@@ -1,104 +1,165 @@
-import { useState } from 'preact/hooks'
-import preactLogo from './assets/preact.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './app.css'
+// ─── APP PRINCIPAL ────────────────────────────────────────────────────────────
+// Aquí se decide qué pantalla mostrar según el rol y la navegación.
+// No hay librería de rutas — el estado maneja todo con useState.
 
-export function App() {
-  const [count, setCount] = useState(0)
+import { useState } from "preact/hooks";
+import { BrowserRouter } from "react-router-dom";
+import type { UserRole, Screen } from "./types";
+
+// Selector de rol
+import { RoleSelector } from "./screens/RoleSelector";
+
+// Pantallas de Familia
+import { HomeFamiliaScreen   } from "./screens/familia/HomeFamilia";
+import { ComunidadScreen     } from "./screens/familia/Comunidad";
+import { EscanearQRScreen    } from "./screens/familia/EscanearQR";
+import { ProgresoScreen      } from "./screens/familia/Progreso";
+
+// Pantallas de Gestor
+import { HomeGestorScreen    } from "./screens/gestor/HomeGestor";
+import { CrearActividadScreen} from "./screens/gestor/CrearActividad";
+import { DashboardScreen     } from "./screens/gestor/Dashboard";
+
+import { fonts, colors } from "./tokens";
+
+export const App = () => {
+  // null = todavía no eligió rol
+  const [rol,     setRol    ] = useState<UserRole | null>(null);
+  const [pantalla, setPantalla] = useState<Screen>("home-familia");
+
+  // Cuando elige el rol, definimos la pantalla inicial según cuál eligió
+  const elegirRol = (r: UserRole) => {
+    setRol(r);
+    setPantalla(r === "familia" ? "home-familia" : "home-gestor");
+  };
+
+  // Función que pasan todas las pantallas para navegar entre ellas
+  const navegar = (s: Screen) => setPantalla(s);
+
+  // Si no eligió rol todavía, mostramos el selector
+  if (!rol) return <RoleSelector onSelect={elegirRol} />;
 
   return (
-    <>
-      <section id="center">
-        <div class="hero">
-          <img src={heroImg} class="base" width="170" height="179" alt="" />
-          <img src={preactLogo} class="framework" alt="Preact logo" />
-          <img src={viteLogo} class="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/app.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          class="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <BrowserRouter>
+      <div style={{
+        minHeight: "100vh",
+        background: `linear-gradient(135deg, #F8F4EF 0%, #EFF8F7 100%)`,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "40px 20px",
+        fontFamily: fonts.body,
+      }}>
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 20,
+        }}>
 
-      <div class="ticks"></div>
+          {/* Botonera de navegación rápida — para presentar el proyecto */}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg class="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img class="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://preactjs.com/" target="_blank">
-                <img class="button-icon" src={preactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg class="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg class="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg class="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg class="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg class="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+            {/* Botón para volver a elegir rol */}
+            <button
+              onClick={() => setRol(null)}
+              style={{
+                padding: "6px 14px",
+                borderRadius: 20,
+                border: "none",
+                background: colors.gray200,
+                cursor: "pointer",
+                fontSize: 11,
+                fontWeight: 700,
+                fontFamily: fonts.body,
+              }}
+            >
+              ← Roles
+            </button>
 
-      <div class="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
-}
+            {/* Botones de pantallas según el rol activo */}
+            {rol === "familia" ? (
+              <>
+                {[
+                  { s: "home-familia" as Screen, l: "🏠 Home"      },
+                  { s: "comunidad"    as Screen, l: "👥 Comunidad"  },
+                  { s: "escanear-qr" as Screen, l: "📷 QR"         },
+                  { s: "progreso"    as Screen, l: "🗺 Progreso"   },
+                ].map(({ s, l }) => (
+                  <button
+                    key={s}
+                    onClick={() => setPantalla(s)}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: 20,
+                      border: "none",
+                      background: pantalla === s ? colors.orange : "white",
+                      color: pantalla === s ? "white" : colors.text,
+                      cursor: "pointer",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      fontFamily: fonts.body,
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+                    }}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </>
+            ) : (
+              <>
+                {[
+                  { s: "home-gestor"      as Screen, l: "🏠 Home"        },
+                  { s: "crear-actividad"  as Screen, l: "🎯 Actividades" },
+                  { s: "dashboard"        as Screen, l: "📊 Dashboard"   },
+                ].map(({ s, l }) => (
+                  <button
+                    key={s}
+                    onClick={() => setPantalla(s)}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: 20,
+                      border: "none",
+                      background: pantalla === s ? colors.teal : "white",
+                      color: pantalla === s ? "white" : colors.text,
+                      cursor: "pointer",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      fontFamily: fonts.body,
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+                    }}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </>
+            )}
+          </div>
+
+          {/* Badge que muestra qué usuario está activo */}
+          <div style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: "white",
+            background: rol === "familia" ? colors.orange : colors.teal,
+            borderRadius: 20,
+            padding: "4px 14px",
+            fontFamily: fonts.body,
+          }}>
+            {rol === "familia" ? "👨‍👩‍👧‍👦 Miembro de Familia: Juan" : "👩‍💼 Miembro Gestor: Julian"}
+          </div>
+
+          {/* La pantalla activa */}
+          {pantalla === "home-familia"    && <HomeFamiliaScreen    onNav={navegar} />}
+          {pantalla === "comunidad"       && <ComunidadScreen      onNav={navegar} />}
+          {pantalla === "escanear-qr"     && <EscanearQRScreen     onNav={navegar} />}
+          {pantalla === "progreso"        && <ProgresoScreen       onNav={navegar} />}
+          {pantalla === "home-gestor"     && <HomeGestorScreen     onNav={navegar} />}
+          {pantalla === "crear-actividad" && <CrearActividadScreen onNav={navegar} />}
+          {pantalla === "dashboard"       && <DashboardScreen      onNav={navegar} />}
+
+        </div>
+      </div>
+    </BrowserRouter>
+  );
+};
