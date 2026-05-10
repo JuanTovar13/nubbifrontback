@@ -1,5 +1,11 @@
 import { render } from 'preact'
 import './index.css'
 import { App } from './app.tsx'
+import {BrowserRouter} from 'react-router-dom'
+render(
 
-render(<App />, document.getElementById('app')!)
+    <BrowserRouter>
+      <App  />
+    </BrowserRouter>
+
+, document.getElementById('app')!)

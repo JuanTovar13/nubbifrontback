@@ -1,6 +1,5 @@
 import type { User, Session } from "@supabase/supabase-js";
 
-// ─── TIPOS DE SUPABASE (ya estaban) ──────────────────────────────────────────
 export interface AuthData {
   user: User;
   session: Session;
@@ -26,23 +25,4 @@ export interface Message {
   created_by: Creator;
 }
 
-// ─── TIPOS DE NUBBI ───────────────────────────────────────────────────────────
-
-// Los dos roles que existen en la app
 export type UserRole = "familia" | "gestor";
-
-// Todas las pantallas posibles de la app
-export type Screen =
-  | "home-familia"
-  | "comunidad"
-  | "escanear-qr"
-  | "actividades"
-  | "home-gestor"
-  | "crear-actividad"
-  | "dashboard"
-  | "perfil";
-
-// Props que recibe casi cada pantalla (para navegar entre ellas)
-export interface ScreenProps {
-  onNav: (screen: Screen) => void;
-}
