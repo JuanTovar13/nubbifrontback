@@ -1,14 +1,9 @@
-// ─── PANTALLA COMUNIDAD — FLUJO FAMILIA ──────────────────────────────────────
-// Chat y contactos. Tiene dos tabs: "Chats" y "Contactos".
-// Juan puede ver sus conversaciones con gestores y grupos familiares.
-
 import { useState } from "preact/hooks";
+import { useNavigate } from "react-router-dom";
 import { colors, fonts } from "../../tokens";
 import {  TopBar } from "../../components/PhoneFrame";
 import { BottomNav, familiaNav } from "../../components/BottomNav";
-import type { ScreenProps } from "../../types";
 
-// Datos de ejemplo — luego tu compañero los conecta al backend
 const contactos = [
   { name: "Gestor Santamaria", msg: "Hola, te esperamos en la experiencia esta...", time: "10:24", avatar: "👩‍💼", unread: 2 },
   { name: "Papá",              msg: "Hola hijo ¿cómo estás?",                      time: "09:15", avatar: "👨",   unread: 0 },
@@ -19,15 +14,15 @@ const chats = [
   { name: "Mamá",                  msg: "Ok amor, hasta luego",                   time: "08:45", avatar: "👩", unread: 0 },
 ];
 
-export const ComunidadScreen = ({ onNav }: ScreenProps) => {
-  // Tab activo: "chats" o "contactos"
+export const ComunidadScreen = () => {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<"chats" | "contactos">("chats");
 
   const items = tab === "contactos" ? contactos : chats;
 
   return (
     <div>
-      <TopBar onBack={() => onNav("home-familia")} />
+      <TopBar onBack={() => navigate("/familia")} />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
         {/* Header con gradiente y tabs */}
@@ -44,7 +39,6 @@ export const ComunidadScreen = ({ onNav }: ScreenProps) => {
             Conversa con tus contactos y crea un chat grupal con tu familia.
           </div>
 
-          {/* Tabs de Chats / Contactos */}
           <div style={{
             display: "flex",
             background: "rgba(255,255,255,0.2)",
@@ -77,7 +71,6 @@ export const ComunidadScreen = ({ onNav }: ScreenProps) => {
           </div>
         </div>
 
-        {/* Etiqueta de sección */}
         <div style={{ padding: "10px 16px 4px", background: colors.gray100, flexShrink: 0 }}>
           <div style={{
             fontSize: 10,
@@ -92,7 +85,7 @@ export const ComunidadScreen = ({ onNav }: ScreenProps) => {
         </div>
 
         {/* Lista de conversaciones */}
-        <div style={{ flex: 1, overflowY: "auto", background: "white" }}>
+        <div style={{ flex: 1, overflowY: "auto", background: "white", position: "relative" }}>
           {items.map((item, i) => (
             <div key={i} style={{
               display: "flex",
@@ -102,7 +95,6 @@ export const ComunidadScreen = ({ onNav }: ScreenProps) => {
               borderBottom: `1px solid ${colors.gray100}`,
               cursor: "pointer",
             }}>
-              {/* Avatar */}
               <div style={{
                 width: 44,
                 height: 44,
@@ -126,7 +118,6 @@ export const ComunidadScreen = ({ onNav }: ScreenProps) => {
                     {item.time}
                   </span>
                 </div>
-                {/* Último mensaje, cortado si es largo */}
                 <div style={{
                   fontSize: 11,
                   color: colors.textLight,
@@ -140,7 +131,6 @@ export const ComunidadScreen = ({ onNav }: ScreenProps) => {
                 </div>
               </div>
 
-              {/* Badge de mensajes sin leer */}
               {item.unread > 0 && (
                 <div style={{
                   width: 18,
@@ -161,31 +151,31 @@ export const ComunidadScreen = ({ onNav }: ScreenProps) => {
               )}
             </div>
           ))}
+
+          {/* Botón flotante nuevo chat */}
+          <button style={{
+            position: "absolute",
+            bottom: 16,
+            right: 16,
+            width: 44,
+            height: 44,
+            borderRadius: "50%",
+            background: colors.orange,
+            border: "none",
+            cursor: "pointer",
+            fontSize: 22,
+            color: "white",
+            boxShadow: `0 4px 14px ${colors.orange}60`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}>
+            +
+          </button>
         </div>
 
-        {/* Botón flotante para nuevo chat */}
-        <button style={{
-          position: "absolute",
-          bottom: 72,
-          right: 16,
-          width: 44,
-          height: 44,
-          borderRadius: "50%",
-          background: colors.orange,
-          border: "none",
-          cursor: "pointer",
-          fontSize: 22,
-          color: "white",
-          boxShadow: `0 4px 14px ${colors.orange}60`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}>
-          +
-        </button>
-
       </div>
-      <BottomNav active="comunidad" onNav={onNav} items={familiaNav} />
+      <BottomNav items={familiaNav} />
     </div>
   );
 };

@@ -1,14 +1,9 @@
-// ─── PANTALLA HOME — FLUJO FAMILIA ───────────────────────────────────────────
-// Primera pantalla que ve Juan cuando abre la app.
-// Muestra saludo, puntos acumulados, menú de opciones y actividad reciente.
-
+import { useNavigate } from "react-router-dom";
 import { colors, fonts } from "../../tokens";
 import {  TopBar } from "../../components/PhoneFrame";
 import { BottomNav, familiaNav } from "../../components/BottomNav";
-import { NubbiOwl } from "../../components/NubbiLogo";
-import type { ScreenProps } from "../../types";
 
-// ── Tarjeta del menú principal ────────────────────────────────────────────────
+
 const MenuCard = ({
   icon,
   label,
@@ -50,7 +45,6 @@ const MenuCard = ({
       (e.currentTarget as HTMLElement).style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
     }}
   >
-    {/* Ícono con fondo de color */}
     <div style={{
       width: 36,
       height: 36,
@@ -72,58 +66,112 @@ const MenuCard = ({
   </button>
 );
 
-// ── Pantalla principal ────────────────────────────────────────────────────────
-export const HomeFamiliaScreen = ({ onNav }: ScreenProps) => (
-  <div>
-    <TopBar />
-    <div style={{ flex: 1, overflowY: "auto", background: colors.offWhite }}>
+export const HomeFamiliaScreen = () => {
+  const navigate = useNavigate();
 
-      
+  return (
+    <div>
+      <TopBar />
+      <div style={{ flex: 1, overflowY: "auto", background: colors.offWhite }}>
 
-      {/* Grid del menú principal */}
-      <div style={{ padding: "16px 16px 0" }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 12, fontFamily: fonts.body }}>
-          ¿Qué quieres hacer hoy?
+        {/* Grid del menú principal */}
+        <div style={{ padding: "16px 16px 0" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 12, fontFamily: fonts.body }}>
+            ¿Qué quieres hacer hoy?
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <MenuCard
+              icon="🎯"
+              label="Actividades"
+              subtitle="Elige desafíos para tu familia"
+              color={colors.orange}
+              bgColor={colors.orangeVeryLight}
+              onClick={() => navigate("/familia/actividades")}
+            />
+            <MenuCard
+              icon="🏆"
+              label="Progreso"
+              subtitle="Gana puntos y desbloquea premios"
+              color={colors.yellow}
+              bgColor={colors.yellowLight}
+              onClick={() => navigate("/familia/actividades")}
+            />
+            <MenuCard
+              icon="👥"
+              label="Comunidad"
+              subtitle="Conecta con otras familias"
+              color={colors.teal}
+              bgColor={colors.tealLight}
+              onClick={() => navigate("/familia/comunidad")}
+            />
+            <MenuCard
+              icon="📷"
+              label="Escanear QR"
+              subtitle="Registra asistencia y aprende"
+              color={colors.blue}
+              bgColor={colors.blueLight}
+              onClick={() => navigate("/familia/escanear-qr")}
+            />
+          </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          <MenuCard
-            icon="🎯"
-            label="Actividades"
-            subtitle="Elige desafíos para tu familia"
-            color={colors.orange}
-            bgColor={colors.orangeVeryLight}
-            onClick={() => onNav("actividades")}
-          />
-          <MenuCard
-            icon="🏆"
-            label="Progreso"
-            subtitle="Gana puntos y desbloquea premios"
-            color={colors.yellow}
-            bgColor={colors.yellowLight}
-            onClick={() => onNav("actividades")}
-          />
-          <MenuCard
-            icon="👥"
-            label="Comunidad"
-            subtitle="Conecta con otras familias"
-            color={colors.teal}
-            bgColor={colors.tealLight}
-            onClick={() => onNav("comunidad")}
-          />
-          <MenuCard
-            icon="📷"
-            label="Escanear QR"
-            subtitle="Registra asistencia y aprende"
-            color={colors.blue}
-            bgColor={colors.blueLight}
-            onClick={() => onNav("escanear-qr")}
-          />
+
+        {/* Actividad reciente */}
+        <div style={{ padding: "16px 16px 20px" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 10, fontFamily: fonts.body }}>
+            Actividad reciente
+          </div>
+
+          {[
+            { icon: "🎨", text: "Taller de pintura completado", time: "Hoy",  pts: "+80pts", color: colors.blue },
+            { icon: "📚", text: "Lectura en familia",           time: "Ayer", pts: "+60pts", color: colors.teal   },
+          ].map((item, i) => (
+            <div key={i} style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              background: "white",
+              borderRadius: 12,
+              padding: "10px 12px",
+              marginBottom: 8,
+              boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+            }}>
+              <div style={{
+                width: 34,
+                height: 34,
+                borderRadius: 10,
+                background: item.color + "20",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 18,
+              }}>
+                {item.icon}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: colors.text, fontFamily: fonts.body }}>
+                  {item.text}
+                </div>
+                <div style={{ fontSize: 10, color: colors.textLight, fontFamily: fonts.body }}>
+                  {item.time}
+                </div>
+              </div>
+              <div style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: colors.green,
+                background: colors.greenLight,
+                borderRadius: 8,
+                padding: "3px 8px",
+                fontFamily: fonts.body,
+              }}>
+                {item.pts}
+              </div>
+            </div>
+          ))}
         </div>
+
       </div>
-
-      
-
+      <BottomNav items={familiaNav} />
     </div>
-    <BottomNav active="home-familia" onNav={onNav} items={familiaNav} />
-  </div>
-);
+  );
+};

@@ -1,22 +1,19 @@
-// ─── PANTALLA CREAR ACTIVIDAD — FLUJO GESTOR ─────────────────────────────────
-// El gestor crea nuevas actividades para compartir con las familias.
-// Tiene dos tabs: "Crear" para el formulario e "Historial" para ver las anteriores.
-
 import { useState } from "preact/hooks";
+import { useNavigate } from "react-router-dom";
 import { colors, fonts } from "../../tokens";
 import {  TopBar } from "../../components/PhoneFrame";
 import { BottomNav, gestorNav } from "../../components/BottomNav";
-import type { ScreenProps } from "../../types";
 
-export const CrearActividadScreen = ({ onNav }: ScreenProps) => {
-  const [tab,      setTab]      = useState<"crear" | "historial">("crear");
-  const [titulo,   setTitulo]   = useState("");
-  const [subtitulo,setSubtitulo]= useState("");
-  const [desc,     setDesc]     = useState("");
+export const CrearActividadScreen = () => {
+  const navigate = useNavigate();
+  const [tab,       setTab]      = useState<"crear" | "historial">("crear");
+  const [titulo,    setTitulo]   = useState("");
+  const [subtitulo, setSubtitulo]= useState("");
+  const [desc,      setDesc]     = useState("");
 
   return (
     <div>
-      <TopBar onBack={() => onNav("home-gestor")} />
+      <TopBar onBack={() => navigate("/gestor")} />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
         {/* Header rosa con tabs */}
@@ -32,7 +29,6 @@ export const CrearActividadScreen = ({ onNav }: ScreenProps) => {
             Las actividades se comparten directamente a los chats usuales de los usuarios y al chat de Mi Hogar Avanza
           </div>
 
-          {/* Tabs Crear / Historial */}
           <div style={{
             display: "flex",
             background: "rgba(255,255,255,0.2)",
@@ -67,11 +63,9 @@ export const CrearActividadScreen = ({ onNav }: ScreenProps) => {
 
         <div style={{ flex: 1, overflowY: "auto", padding: 16, background: colors.offWhite }}>
 
-          {/* ── Tab Crear ── */}
           {tab === "crear" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
 
-              {/* Zona para subir imagen de portada */}
               <div style={{
                 height: 100,
                 background: `linear-gradient(135deg, ${colors.pink}15, ${colors.blue}15)`,
@@ -90,7 +84,6 @@ export const CrearActividadScreen = ({ onNav }: ScreenProps) => {
                 </span>
               </div>
 
-              {/* Campo: Título */}
               <input
                 placeholder="*Título"
                 value={titulo}
@@ -109,7 +102,6 @@ export const CrearActividadScreen = ({ onNav }: ScreenProps) => {
                 }}
               />
 
-              {/* Campo: Subtítulo */}
               <input
                 placeholder="Título secundario asociado"
                 value={subtitulo}
@@ -128,7 +120,6 @@ export const CrearActividadScreen = ({ onNav }: ScreenProps) => {
                 }}
               />
 
-              {/* Campo: Descripción */}
               <textarea
                 placeholder="Descripción de la actividad"
                 value={desc}
@@ -149,7 +140,6 @@ export const CrearActividadScreen = ({ onNav }: ScreenProps) => {
                 }}
               />
 
-              {/* Campos de fecha, hora y lugar */}
               {[
                 { icon: "📅", placeholder: "Fecha" },
                 { icon: "🕐", placeholder: "Hora"  },
@@ -171,7 +161,6 @@ export const CrearActividadScreen = ({ onNav }: ScreenProps) => {
                 </div>
               ))}
 
-              {/* Botón compartir */}
               <button style={{
                 marginTop: 4,
                 padding: 13,
@@ -190,7 +179,6 @@ export const CrearActividadScreen = ({ onNav }: ScreenProps) => {
             </div>
           )}
 
-          {/* ── Tab Historial ── */}
           {tab === "historial" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {[
@@ -234,7 +222,7 @@ export const CrearActividadScreen = ({ onNav }: ScreenProps) => {
 
         </div>
       </div>
-      <BottomNav active="crear-actividad" onNav={onNav} items={gestorNav} />
+      <BottomNav items={gestorNav} />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { colors, fonts } from "../tokens";
+
 
 export const Dancing = ({ size = 80 }: { size?: number })=> (
   <img
