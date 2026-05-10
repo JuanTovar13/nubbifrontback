@@ -58,7 +58,7 @@ const MenuCard = ({
     }}>
       {icon}
     </div>
-    <div style={{ fontWeight: 700, fontSize: 12, color: colors.text, fontFamily: fonts.body }}>
+    <div style={{ fontWeight: 700, fontSize: 20, color: colors.text, fontFamily: fonts.body }}>
       {label}
     </div>
     <div style={{ fontSize: 10, color: colors.textLight, lineHeight: 1.3, fontFamily: fonts.body }}>
@@ -71,13 +71,13 @@ export const HomeFamiliaScreen = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="HomeFamilia" style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+    <div className="HomeFamilia" style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", height:"100vh" }}>
       <TopBar />
-      <div style={{ flex: 1, overflowY: "auto", background: colors.offWhite }}>
+      <div style={{ flex: 1, overflowY: "auto", background: colors.offWhite, paddingBottom: 64 }}>
 
         {/* Grid del menú principal */}
         <div style={{ padding: "4vh 2vh 7vh" }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 12, fontFamily: fonts.body }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: colors.text, marginBottom: 12, fontFamily: fonts.body }}>
             ¿Qué quieres hacer hoy?
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -89,14 +89,7 @@ export const HomeFamiliaScreen = () => {
               bgColor={colors.pinkLight}
               onClick={() => navigate("/familia/actividades")}
             />
-            <MenuCard
-              icon="👤"
-              label="Perfil"
-              subtitle="Gana puntos y desbloquea premios"
-              color={colors.cream}
-              bgColor={colors.creamLight}
-              onClick={() => navigate("/familia/actividades")}
-            />
+            
             <MenuCard
               icon="👥"
               label="Comunidad"
@@ -112,6 +105,14 @@ export const HomeFamiliaScreen = () => {
               color={colors.teal}
               bgColor={colors.tealLight}
               onClick={() => navigate("/familia/escanear-qr")}
+            />
+            <MenuCard
+              icon="👤"
+              label="Perfil"
+              subtitle=""
+              color={colors.cream}
+              bgColor={colors.creamLight}
+              onClick={() => navigate("/familia/perfil")}
             />
           </div>
         </div>

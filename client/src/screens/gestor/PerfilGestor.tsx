@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { NubbiOwl } from "../../components/NubbiLogo";
 import {  TopBar } from "../../components/PhoneFrame";
-import { BottomNav, familiaNav } from "../../components/BottomNav";
+import { BottomNav, gestorNav } from "../../components/BottomNav";
 import { colors, fonts } from "../../tokens";
 
-export const Perfil = () => {
+export const PerfilGestor = () => {
   const navigate = useNavigate();
 
   return (
@@ -12,37 +12,62 @@ export const Perfil = () => {
       <TopBar/>
       <div style={{ flex: 1, overflowY: "auto", background: colors.offWhite, paddingBottom: 64 }}>
 
-        {/* Banner */}
+        {/* Banner de bienvenida */}
         <div style={{
-          background: `linear-gradient(135deg, ${colors.orange} 0%, ${colors.orangeLight} 100%)`,
+          background: colors.teal,
           padding: "20px 20px 24px",
           position: "relative",
           overflow: "hidden",
         }}>
-          <div style={{ position: "absolute", right: -10, bottom: -10, opacity: 0.15, fontSize: 80 }}>⭐</div>
+          <div style={{ position: "absolute", right: -20, bottom: -20, opacity: 0.08, fontSize: 120 }}>
+            ⚙️
+          </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div style={{
               width: 56,
               height: 56,
               borderRadius: "50%",
-              background: "rgba(255,255,255,0.3)",
+              background: "rgba(255,255,255,0.25)",
+              border: "3px solid rgba(255,255,255,0.5)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              border: "3px solid rgba(255,255,255,0.6)",
             }}>
               <NubbiOwl size={44} />
             </div>
 
             <div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)", fontFamily: fonts.body }}>
-                ¡Bienvenido de nuevo!
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", fontFamily: fonts.body }}>
+                Panel de control
               </div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: "white", fontFamily: fonts.body }}>
-                Juan
+              <div style={{ fontSize: 18, fontWeight: 800, color: "white", fontFamily: fonts.body }}>
+                Bienvenido, Gestor Julian
               </div>
             </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+            {[
+              { val: "124", label: "Familias"    },
+              { val: "64%", label: "Asistencia"  },
+              { val: "28",  label: "Activos hoy" },
+            ].map((stat, i) => (
+              <div key={i} style={{
+                flex: 1,
+                background: "rgba(255,255,255,0.2)",
+                borderRadius: 10,
+                padding: "8px 6px",
+                textAlign: "center",
+              }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "white", fontFamily: fonts.body }}>
+                  {stat.val}
+                </div>
+                <div style={{ fontSize: 9, color: "rgba(255,255,255,0.8)", fontFamily: fonts.body }}>
+                  {stat.label}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -74,7 +99,7 @@ export const Perfil = () => {
         </div>
 
       </div>
-      <BottomNav items={familiaNav} />
+      <BottomNav items={gestorNav} />
     </div>
   );
 };

@@ -18,7 +18,9 @@ export const familiaNav: NavItem[] = [
 export const gestorNav: NavItem[] = [
   { icon: "🏠", label: "Inicio",      path: "/gestor"             },
   { icon: "🎯", label: "Actividades", path: "/gestor/actividades" },
+  { icon: "👥", label: "Comunidad",   path: "/gestor/comunidad"   },
   { icon: "📊", label: "Dashboard",   path: "/gestor/dashboard"   },
+  { icon: "👤", label: "Perfil",      path: "/gestor/perfil"      },
 ];
 
 export const BottomNav = ({ items }: { items: NavItem[] }) => {

@@ -24,13 +24,13 @@ export const DashboardScreen = () => {
 
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", height:"100vh" }}>
       <TopBar  />
       <div style={{
         flex: 1,
         overflowY: "auto",
         background: colors.offWhite,
-        padding: "12px 14px 20px",
+        padding: "12px 14px 64px",
         display: "flex",
         flexDirection: "column",
         gap: 12,
@@ -138,44 +138,6 @@ export const DashboardScreen = () => {
                     background: `linear-gradient(90deg, ${etapa.color}80, ${etapa.color})`,
                   }} />
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Actividad semanal */}
-        <div style={{
-          background: "white",
-          borderRadius: 16,
-          padding: "14px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-        }}>
-          <div style={{ fontWeight: 800, fontSize: 14, color: colors.text, marginBottom: 12, fontFamily: fonts.body }}>
-            Actividad semanal
-          </div>
-
-          <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 80 }}>
-            {actividadSemanal.map((dia) => (
-              <div key={dia.dia} style={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 4,
-                height: "100%",
-                justifyContent: "flex-end",
-              }}>
-                <div style={{
-                  width: "100%",
-                  height: `${dia.altura}%`,
-                  background: dia.destacado
-                    ? `linear-gradient(180deg, ${colors.orange}, ${colors.yellow})`
-                    : colors.gray200,
-                  borderRadius: "4px 4px 0 0",
-                }} />
-                <span style={{ fontSize: 8, color: colors.textLight, fontFamily: fonts.body }}>
-                  {dia.dia}
-                </span>
               </div>
             ))}
           </div>

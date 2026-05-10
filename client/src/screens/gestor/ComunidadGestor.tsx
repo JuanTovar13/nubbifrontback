@@ -2,7 +2,7 @@ import { useState } from "preact/hooks";
 
 import { colors, fonts } from "../../tokens";
 import {  TopBar } from "../../components/PhoneFrame";
-import { BottomNav, familiaNav } from "../../components/BottomNav";
+import { BottomNav, gestorNav } from "../../components/BottomNav";
 
 const contactos = [
   { name: "Gestor Santamaria", msg: "Hola, te esperamos en la experiencia esta...", time: "10:24", avatar: "👩‍💼", unread: 2 },
@@ -14,7 +14,7 @@ const chats = [
   { name: "Mamá",                  msg: "Ok amor, hasta luego",                   time: "08:45", avatar: "👩", unread: 0 },
 ];
 
-export const ComunidadScreen = () => {
+export const ComunidadGestorScreen = () => {
 
   const [tab, setTab] = useState<"chats" | "contactos">("chats");
 
@@ -175,7 +175,7 @@ export const ComunidadScreen = () => {
         </div>
 
       </div>
-      <BottomNav items={familiaNav} />
+      <BottomNav items={gestorNav} />
     </div>
   );
 };

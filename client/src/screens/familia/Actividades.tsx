@@ -209,9 +209,9 @@ export const ActividadesScreen = () => {
 
 
   return (
-    <div style={{display: "flex", flexDirection: "column", overflow: "hidden" }}>
+    <div style={{display: "flex", flexDirection: "column", overflow: "hidden", height:"100vh" }}>
       <TopBar />
-      <div className="actividades-screen" style={{ flex: 1, background: colors.offWhite, overflow:"auto", height:"100vh" }}>
+      <div className="actividades-screen" style={{ flex: 1, background: colors.offWhite, overflowY: "auto", paddingBottom: 64 }}>
 
         {/* Header */}
         <div style={{
@@ -227,7 +227,7 @@ export const ActividadesScreen = () => {
         </div>
 
         {/* Lista de cards */}
-        <div className="lista de actividades" style={{ padding: "16px", display: "flex", flexDirection: "column", gap: 12, overflow:"scroll" }}>
+        <div className="lista de actividades" style={{ padding: "16px", display: "flex", flexDirection: "column", gap: 12 }}>
           {actividades.map((act) => (
             <ActividadCard key={act.id} act={act} />
           ))}

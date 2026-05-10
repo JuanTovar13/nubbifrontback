@@ -13,7 +13,7 @@ export const TopBar = () => (
     flexShrink: 0,
   }}>
 
-    <NubbiLogo/>
+    <NubbiLogo size={100}/>
   </div>
 );
 

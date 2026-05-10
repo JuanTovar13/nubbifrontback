@@ -10,66 +10,9 @@ export const HomeGestorScreen = () => {
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <TopBar />
-      <div style={{ flex: 1, overflowY: "auto", background: colors.offWhite }}>
+      <div style={{ flex: 1, overflowY: "auto", background: colors.offWhite, paddingBottom: 64 }}>
 
-        {/* Banner de bienvenida */}
-        <div style={{
-          background: `linear-gradient(135deg, ${colors.teal} 0%, ${colors.blue} 100%)`,
-          padding: "20px 20px 24px",
-          position: "relative",
-          overflow: "hidden",
-        }}>
-          <div style={{ position: "absolute", right: -20, bottom: -20, opacity: 0.08, fontSize: 120 }}>
-            ⚙️
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{
-              width: 56,
-              height: 56,
-              borderRadius: "50%",
-              background: "rgba(255,255,255,0.25)",
-              border: "3px solid rgba(255,255,255,0.5)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}>
-              <NubbiOwl size={44} />
-            </div>
-
-            <div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", fontFamily: fonts.body }}>
-                Panel de control
-              </div>
-              <div style={{ fontSize: 18, fontWeight: 800, color: "white", fontFamily: fonts.body }}>
-                Bienvenido, Gestor Julian
-              </div>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-            {[
-              { val: "124", label: "Familias"    },
-              { val: "64%", label: "Asistencia"  },
-              { val: "28",  label: "Activos hoy" },
-            ].map((stat, i) => (
-              <div key={i} style={{
-                flex: 1,
-                background: "rgba(255,255,255,0.2)",
-                borderRadius: 10,
-                padding: "8px 6px",
-                textAlign: "center",
-              }}>
-                <div style={{ fontSize: 16, fontWeight: 800, color: "white", fontFamily: fonts.body }}>
-                  {stat.val}
-                </div>
-                <div style={{ fontSize: 9, color: "rgba(255,255,255,0.8)", fontFamily: fonts.body }}>
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        
 
         {/* Menú de acciones */}
         <div style={{ padding: "16px 16px 20px" }}>
@@ -91,18 +34,11 @@ export const HomeGestorScreen = () => {
                 icon: "👥",
                 label: "Comunidad",
                 subtitle: "Conversa, motiva y responde directamente a las dudas de los hogares.",
-                color:   colors.teal,
-                bgColor: colors.tealLight,
-                path:    "/gestor",
-              },
-              {
-                icon: "📷",
-                label: "Lector de QR",
-                subtitle: "Herramienta de los Eventos para lectura de QR.",
                 color:   colors.blue,
                 bgColor: colors.blueLight,
                 path:    "/gestor",
               },
+              
               {
                 icon: "📊",
                 label: "Dashboard",
@@ -110,6 +46,14 @@ export const HomeGestorScreen = () => {
                 color:   colors.orange,
                 bgColor: colors.orangeVeryLight,
                 path:    "/gestor/dashboard",
+              },
+              {
+                icon: "👤",
+                label: "Perfil",
+                subtitle: "",
+                color:   colors.teal,
+                bgColor: colors.tealLight,
+                path:    "/gestor",
               },
             ].map((item, i) => (
               <button

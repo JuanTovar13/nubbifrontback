@@ -9,6 +9,8 @@ import { Perfil }               from "./screens/familia/Perfil";
 import { HomeGestorScreen }     from "./screens/gestor/HomeGestor";
 import { CrearActividadScreen } from "./screens/gestor/CrearActividad";
 import { DashboardScreen }      from "./screens/gestor/Dashboard";
+import { PerfilGestor } from "./screens/gestor/PerfilGestor";
+import { ComunidadGestorScreen } from "./screens/gestor/ComunidadGestor";
 
 export const App = () => (
   <div className="appContainer" class="flex min-h-100vh">
@@ -23,7 +25,9 @@ export const App = () => (
 
       <Route path="/gestor"              element={<HomeGestorScreen />}     />
       <Route path="/gestor/actividades"  element={<CrearActividadScreen />} />
+      <Route path="/gestor/comunidad"   element={<ComunidadGestorScreen />}      />
       <Route path="/gestor/dashboard"    element={<DashboardScreen />}      />
+      <Route path="/gestor/perfil"      element={<PerfilGestor />}               />
       <Route path="*"                    element={<Navigate to="/" replace />} />
     </Routes>
   </div>
