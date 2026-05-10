@@ -1,14 +1,14 @@
-import { useNavigate } from "react-router-dom";
+
 import { colors, fonts } from "../../tokens";
 import {  TopBar } from "../../components/PhoneFrame";
 import { BottomNav, familiaNav } from "../../components/BottomNav";
 
 export const EscanearQRScreen = () => {
-  const navigate = useNavigate();
+
 
   return (
-    <div>
-      <TopBar onBack={() => navigate("/familia")} />
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <TopBar />
       <div style={{
         flex: 1,
         display: "flex",

@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import { useNavigate } from "react-router-dom";
+
 import { colors, fonts } from "../../tokens";
 import {  TopBar } from "../../components/PhoneFrame";
 import { BottomNav, familiaNav } from "../../components/BottomNav";
@@ -67,6 +67,7 @@ const ActividadCard = ({ act }: { act: Actividad }) => {
 
   return (
     <div
+      className="ActividadCard"
       style={{
         background: "white",
         borderRadius: 16,
@@ -95,7 +96,7 @@ const ActividadCard = ({ act }: { act: Actividad }) => {
           width: 44,
           height: 44,
           borderRadius: 12,
-          background: colors.orangeVeryLight,
+          background: colors.pinkLight,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -186,7 +187,7 @@ const ActividadCard = ({ act }: { act: Actividad }) => {
             marginTop: 16,
             width: "100%",
             padding: "11px 0",
-            background: `linear-gradient(135deg, ${colors.orange}, ${colors.orangeLight})`,
+            background: `linear-gradient(135deg, ${colors.pinkDark})`,
             border: "none",
             borderRadius: 12,
             color: "white",
@@ -194,7 +195,7 @@ const ActividadCard = ({ act }: { act: Actividad }) => {
             fontSize: 13,
             cursor: "pointer",
             fontFamily: fonts.body,
-            boxShadow: `0 4px 14px ${colors.orange}40`,
+            boxShadow: `0 4px 14px ${colors.pinkDark}40`,
           }}>
             Participar
           </button>
@@ -205,16 +206,16 @@ const ActividadCard = ({ act }: { act: Actividad }) => {
 };
 
 export const ActividadesScreen = () => {
-  const navigate = useNavigate();
+
 
   return (
-    <div>
-      <TopBar onBack={() => navigate("/familia")} title="Actividades" />
-      <div style={{ flex: 1, overflowY: "auto", background: colors.offWhite }}>
+    <div style={{display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <TopBar />
+      <div className="actividades-screen" style={{ flex: 1, background: colors.offWhite, overflow:"auto", height:"100vh" }}>
 
         {/* Header */}
         <div style={{
-          background: `linear-gradient(135deg, ${colors.orange}, ${colors.orangeLight})`,
+          background: `linear-gradient(135deg, ${colors.pink})`,
           padding: "16px 20px 20px",
         }}>
           <div style={{ fontSize: 17, fontWeight: 800, color: "white", fontFamily: fonts.body }}>
@@ -226,7 +227,7 @@ export const ActividadesScreen = () => {
         </div>
 
         {/* Lista de cards */}
-        <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: 12 }}>
+        <div className="lista de actividades" style={{ padding: "16px", display: "flex", flexDirection: "column", gap: 12, overflow:"scroll" }}>
           {actividades.map((act) => (
             <ActividadCard key={act.id} act={act} />
           ))}

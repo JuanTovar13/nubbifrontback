@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+
 import { colors, fonts } from "../../tokens";
 import {  TopBar } from "../../components/PhoneFrame";
 import { BottomNav, gestorNav } from "../../components/BottomNav";
@@ -21,11 +21,11 @@ const actividadSemanal = [
 ];
 
 export const DashboardScreen = () => {
-  const navigate = useNavigate();
+
 
   return (
-    <div>
-      <TopBar onBack={() => navigate("/gestor")} />
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <TopBar  />
       <div style={{
         flex: 1,
         overflowY: "auto",

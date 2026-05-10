@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import { useNavigate } from "react-router-dom";
+
 import { colors, fonts } from "../../tokens";
 import {  TopBar } from "../../components/PhoneFrame";
 import { BottomNav, familiaNav } from "../../components/BottomNav";
@@ -15,14 +15,14 @@ const chats = [
 ];
 
 export const ComunidadScreen = () => {
-  const navigate = useNavigate();
+
   const [tab, setTab] = useState<"chats" | "contactos">("chats");
 
   const items = tab === "contactos" ? contactos : chats;
 
   return (
-    <div>
-      <TopBar onBack={() => navigate("/familia")} />
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <TopBar  />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
         {/* Header con gradiente y tabs */}

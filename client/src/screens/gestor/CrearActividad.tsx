@@ -1,19 +1,18 @@
 import { useState } from "preact/hooks";
-import { useNavigate } from "react-router-dom";
 import { colors, fonts } from "../../tokens";
 import {  TopBar } from "../../components/PhoneFrame";
 import { BottomNav, gestorNav } from "../../components/BottomNav";
 
 export const CrearActividadScreen = () => {
-  const navigate = useNavigate();
+
   const [tab,       setTab]      = useState<"crear" | "historial">("crear");
   const [titulo,    setTitulo]   = useState("");
   const [subtitulo, setSubtitulo]= useState("");
   const [desc,      setDesc]     = useState("");
 
   return (
-    <div>
-      <TopBar onBack={() => navigate("/gestor")} />
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <TopBar  />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
         {/* Header rosa con tabs */}

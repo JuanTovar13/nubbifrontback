@@ -8,7 +8,7 @@ export const HomeGestorScreen = () => {
   const navigate = useNavigate();
 
   return (
-    <div>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <TopBar />
       <div style={{ flex: 1, overflowY: "auto", background: colors.offWhite }}>
 

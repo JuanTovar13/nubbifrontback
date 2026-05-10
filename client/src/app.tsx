@@ -11,10 +11,10 @@ import { CrearActividadScreen } from "./screens/gestor/CrearActividad";
 import { DashboardScreen }      from "./screens/gestor/Dashboard";
 
 export const App = () => (
-  <div class="flex min-h-100vh">
+  <div className="appContainer" class="flex min-h-100vh">
     <Routes>
       <Route path="/"                    element={<RoleSelector />}         />
-      
+
       <Route path="/familia"             element={<HomeFamiliaScreen />}    />
       <Route path="/familia/actividades" element={<ActividadesScreen />}    />
       <Route path="/familia/comunidad"   element={<ComunidadScreen />}      />
