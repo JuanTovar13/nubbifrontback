@@ -14,6 +14,10 @@ app.use(cors());
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
+app.get('/', (req, res) => {
+  res.send('Hello, World!!!!!');
+});
+
 app.use('/api/auth', authRouter);
 app.use('/api/actividades', actividadesRouter);
 app.use('/api/asistencias', asistenciasRouter);
