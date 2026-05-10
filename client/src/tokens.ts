@@ -9,29 +9,29 @@ export const colors = {
   orangeVeryLight: "#FFF3EE",
 
   // Rosa — para el flujo de Gestor
-  pink:            "#FF4B7B",
-  pinkLight:       "#FF6B95",
-  pinkVeryLight:   "#FFF0F4",
+  pinkDark:            "#BF2045",
+  pink:       "#EB5E7F",
+  pinkLight:   "#FFB4C6",
 
   // Amarillo — detalles y estrellas
-  yellow:          "#FFD700",
+  yellow:          "#FFD401",
   yellowLight:     "#FFF9E0",
 
   // Verde azulado — color secundario
-  teal:            "#00B4A6",
-  tealLight:       "#E0F7F5",
+  teal:            "#04C3A9",
+  tealLight:       "#D5FFF9",
 
   // Azul — info y links
-  blue:            "#4A90E2",
-  blueLight:       "#EBF4FF",
-
-  // Morado — detalles decorativos
-  purple:          "#7B5EA7",
-  purpleLight:     "#F0EBFF",
+  blue:            "#0695D2",
+  blueLight:       "#A2E3FF",
 
   // Verde — éxito y puntos ganados
   green:           "#4CAF50",
   greenLight:      "#E8F5E9",
+
+    // Verde — éxito y puntos ganados
+  cream:           "#F49E86",
+  creamLight:      "#FFF4DE",
 
   // Neutros
   white:           "#FFFFFF",
@@ -53,5 +53,5 @@ export const fonts = {
   // Fuente principal — para títulos grandes y la logo
   display: "'Fredoka One', cursive",
   // Fuente de cuerpo — para todo el texto normal
-  body:    "'Nunito', sans-serif",
+  body:    "'Montserrat', sans-serif",
 };

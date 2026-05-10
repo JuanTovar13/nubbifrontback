@@ -36,10 +36,11 @@ export type Screen =
   | "home-familia"
   | "comunidad"
   | "escanear-qr"
-  | "progreso"
+  | "actividades"
   | "home-gestor"
   | "crear-actividad"
-  | "dashboard";
+  | "dashboard"
+  | "perfil";
 
 // Props que recibe casi cada pantalla (para navegar entre ellas)
 export interface ScreenProps {

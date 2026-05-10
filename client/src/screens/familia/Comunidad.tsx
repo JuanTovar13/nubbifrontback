@@ -4,7 +4,7 @@
 
 import { useState } from "preact/hooks";
 import { colors, fonts } from "../../tokens";
-import { PhoneFrame, TopBar } from "../../components/PhoneFrame";
+import {  TopBar } from "../../components/PhoneFrame";
 import { BottomNav, familiaNav } from "../../components/BottomNav";
 import type { ScreenProps } from "../../types";
 
@@ -26,7 +26,7 @@ export const ComunidadScreen = ({ onNav }: ScreenProps) => {
   const items = tab === "contactos" ? contactos : chats;
 
   return (
-    <PhoneFrame>
+    <div>
       <TopBar onBack={() => onNav("home-familia")} />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
@@ -186,6 +186,6 @@ export const ComunidadScreen = ({ onNav }: ScreenProps) => {
 
       </div>
       <BottomNav active="comunidad" onNav={onNav} items={familiaNav} />
-    </PhoneFrame>
+    </div>
   );
 };

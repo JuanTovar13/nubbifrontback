@@ -3,13 +3,13 @@
 // y accede a sus herramientas: actividades, comunidad, QR y dashboard.
 
 import { colors, fonts } from "../../tokens";
-import { PhoneFrame, TopBar } from "../../components/PhoneFrame";
+import {  TopBar } from "../../components/PhoneFrame";
 import { BottomNav, gestorNav } from "../../components/BottomNav";
-import { NubbiOwlGestor } from "../../components/NubbiLogo";
+import { NubbiOwl } from "../../components/NubbiLogo";
 import type { ScreenProps } from "../../types";
 
 export const HomeGestorScreen = ({ onNav }: ScreenProps) => (
-  <PhoneFrame>
+  <div>
     <TopBar />
     <div style={{ flex: 1, overflowY: "auto", background: colors.offWhite }}>
 
@@ -36,7 +36,7 @@ export const HomeGestorScreen = ({ onNav }: ScreenProps) => (
             alignItems: "center",
             justifyContent: "center",
           }}>
-            <NubbiOwlGestor size={44} />
+            <NubbiOwl size={44} />
           </div>
 
           <div>
@@ -87,7 +87,7 @@ export const HomeGestorScreen = ({ onNav }: ScreenProps) => (
               label: "Crear Actividades",
               subtitle: "Comparte nuevas experiencias para que las familias participen y mantengan informadas el tema de las actividades.",
               color:   colors.pink,
-              bgColor: colors.pinkVeryLight,
+              bgColor: colors.pinkLight,
               screen:  "crear-actividad" as const,
             },
             {
@@ -169,5 +169,5 @@ export const HomeGestorScreen = ({ onNav }: ScreenProps) => (
 
     </div>
     <BottomNav active="home-gestor" onNav={onNav} items={gestorNav} />
-  </PhoneFrame>
+  </div>
 );

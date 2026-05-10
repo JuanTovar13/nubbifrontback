@@ -4,7 +4,7 @@
 
 import { useState } from "preact/hooks";
 import { colors, fonts } from "../../tokens";
-import { PhoneFrame, TopBar } from "../../components/PhoneFrame";
+import {  TopBar } from "../../components/PhoneFrame";
 import { BottomNav, gestorNav } from "../../components/BottomNav";
 import type { ScreenProps } from "../../types";
 
@@ -15,7 +15,7 @@ export const CrearActividadScreen = ({ onNav }: ScreenProps) => {
   const [desc,     setDesc]     = useState("");
 
   return (
-    <PhoneFrame>
+    <div>
       <TopBar onBack={() => onNav("home-gestor")} />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
@@ -74,7 +74,7 @@ export const CrearActividadScreen = ({ onNav }: ScreenProps) => {
               {/* Zona para subir imagen de portada */}
               <div style={{
                 height: 100,
-                background: `linear-gradient(135deg, ${colors.pink}15, ${colors.purple}15)`,
+                background: `linear-gradient(135deg, ${colors.pink}15, ${colors.blue}15)`,
                 borderRadius: 12,
                 border: `2px dashed ${colors.pink}60`,
                 display: "flex",
@@ -235,6 +235,6 @@ export const CrearActividadScreen = ({ onNav }: ScreenProps) => {
         </div>
       </div>
       <BottomNav active="crear-actividad" onNav={onNav} items={gestorNav} />
-    </PhoneFrame>
+    </div>
   );
 };
