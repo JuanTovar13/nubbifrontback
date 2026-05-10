@@ -1,8 +1,18 @@
 import { colors, fonts } from "../tokens";
 
+export const Dancing = ({ size = 80 }: { size?: number })=> (
+  <img
+    src="https://zydcdgsuxzpyjntdmeyn.supabase.co/storage/v1/object/public/images/dancing.svg"
+    alt="Dancing"
+    width={size}
+    height={size}
+    style={{ objectFit: "contain" }}
+  />
+);
+
 export const NubbiOwl = ({ size = 80 }: { size?: number }) => (
   <img
-    src="/owl-familia.png"
+    src="https://zydcdgsuxzpyjntdmeyn.supabase.co/storage/v1/object/public/images/cachito.svg"
     alt="Mascota Nubbi"
     width={size}
     height={size}
@@ -10,9 +20,9 @@ export const NubbiOwl = ({ size = 80 }: { size?: number }) => (
   />
 );
 
-export const NubbiOwlGestor = ({ size = 80 }: { size?: number }) => (
+export const NubbiRabbit = ({ size = 80 }: { size?: number }) => (
   <img
-    src="/owl-gestor.png"
+    src="https://zydcdgsuxzpyjntdmeyn.supabase.co/storage/v1/object/public/images/conejito%20(1).svg"
     alt="Mascota Nubbi Gestor"
     width={size}
     height={size}
@@ -20,27 +30,52 @@ export const NubbiOwlGestor = ({ size = 80 }: { size?: number }) => (
   />
 );
 
-export const NubbiLogo = () => (
-  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-    <NubbiOwl size={32} />
-    <div>
-      <div style={{
-        fontFamily: fonts.display,
-        fontSize: 20,
-        color: colors.orange,
-        lineHeight: 1,
-        letterSpacing: "0.5px",
-      }}>
-        NÜBBI
-      </div>
-      <div style={{
-        fontFamily: fonts.body,
-        fontSize: 8,
-        color: colors.textLight,
-        letterSpacing: "1px",
-      }}>
-        Soadora Siempre
-      </div>
-    </div>
-  </div>
+export const NubbiGhost = ({ size = 80 }: { size?: number }) => (
+  <img
+    src="https://zydcdgsuxzpyjntdmeyn.supabase.co/storage/v1/object/public/images/fantasmita.svg"
+    alt="Mascota Nubbi Gestor"
+    width={size}
+    height={size}
+    style={{ objectFit: "contain" }}
+  />
+);
+
+export const NubbiLong = ({ size = 80 }: { size?: number }) => (
+  <img
+    src="https://zydcdgsuxzpyjntdmeyn.supabase.co/storage/v1/object/public/images/larguito.svg"
+    alt="Mascota Nubbi Gestor"
+    width={size}
+    height={size}
+    style={{ objectFit: "contain" }}
+  />
+);
+
+export const NubbiJelly = ({ size = 80 }: { size?: number }) => (
+  <img
+    src="https://zydcdgsuxzpyjntdmeyn.supabase.co/storage/v1/object/public/images/medusita.svg"
+    alt="Mascota Nubbi Gestor"
+    width={size}
+    height={size}
+    style={{ objectFit: "contain" }}
+  />
+);
+
+export const NubbiBall = ({ size = 80 }: { size?: number }) => (
+  <img
+    src="https://zydcdgsuxzpyjntdmeyn.supabase.co/storage/v1/object/public/images/bolita%20(1).svg"
+    alt="Mascota Nubbi Gestor"
+    width={size}
+    height={size}
+    style={{ objectFit: "contain" }}
+  />
+);
+
+export const NubbiLogo = ({ size = 230 }: { size?: number }) => (
+  <img
+    src="https://zydcdgsuxzpyjntdmeyn.supabase.co/storage/v1/object/public/images/nubbi.svg"
+    alt="Nubbi logo"
+    width={size}
+    height={size}
+    style={{ objectFit: "contain" }}
+  />
 );

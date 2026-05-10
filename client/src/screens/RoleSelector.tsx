@@ -3,7 +3,7 @@
 // Va en screens/ porque no pertenece ni a familia ni a gestor.
 
 import { colors, fonts } from "../tokens";
-import { NubbiOwl, NubbiOwlGestor } from "../components/NubbiLogo";
+import {  Dancing, NubbiLogo, NubbiBall, NubbiRabbit} from "../components/NubbiLogo";
 import type { UserRole } from "../types";
 
 export const RoleSelector = ({
@@ -22,18 +22,12 @@ export const RoleSelector = ({
     padding: 40,
   }}>
 
-    {/* Mascota grande en la entrada */}
-    <NubbiOwl size={110} />
 
-    <h1 style={{
-      fontFamily: fonts.display,
-      fontSize: 44,
-      color: colors.orange,
-      margin: "12px 0 4px",
-      letterSpacing: "-1px",
-    }}>
-      NÜBBI
-    </h1>
+    <NubbiLogo size={180} />
+    {/* Mascota grande en la entrada */}
+    <Dancing size={250} />
+
+    
 
     <p style={{
       color: colors.textLight,
@@ -51,23 +45,25 @@ export const RoleSelector = ({
         {
           rol:     "familia" as UserRole,
           label:   "Miembro de Familia",
-          color:   colors.orange,
-          bg:      colors.orangeVeryLight,
-          mascota: <NubbiOwl size={60} />,
+          color:   colors.pink,
+          bg:      colors.pinkLight,
+          textColor: colors.white,
+          mascota: <NubbiBall size={60} />,
         },
         {
           rol:     "gestor" as UserRole,
           label:   "Miembro Gestor",
-          color:   colors.teal,
-          bg:      colors.tealLight,
-          mascota: <NubbiOwlGestor size={60} />,
+          color:   colors.blue,
+          bg:      colors.blueLight,
+          textColor: colors.white,
+          mascota: <NubbiRabbit size={60} />,
         },
       ].map((opcion) => (
         <button
           key={opcion.rol}
           onClick={() => onSelect(opcion.rol)}
           style={{
-            background: "white",
+            background: opcion.color,
             border: `3px solid ${opcion.color}`,
             borderRadius: 20,
             padding: "24px 20px",
@@ -104,8 +100,8 @@ export const RoleSelector = ({
 
           <span style={{
             fontSize: 12,
-            fontWeight: 800,
-            color: opcion.color,
+            fontWeight: "regular",
+            color: opcion.textColor,
             textAlign: "center",
             fontFamily: fonts.body,
           }}>
