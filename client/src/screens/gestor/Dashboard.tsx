@@ -3,7 +3,7 @@
 // Incluye estadísticas clave, el modelo AIDA y una gráfica de actividad semanal.
 
 import { colors, fonts } from "../../tokens";
-import { PhoneFrame, TopBar } from "../../components/PhoneFrame";
+import { TopBar } from "../../components/PhoneFrame";
 import { BottomNav, gestorNav } from "../../components/BottomNav";
 import type { ScreenProps } from "../../types";
 
@@ -27,7 +27,7 @@ const actividadSemanal = [
 ];
 
 export const DashboardScreen = ({ onNav }: ScreenProps) => (
-  <PhoneFrame>
+  <div>
     <TopBar onBack={() => onNav("home-gestor")} />
     <div style={{
       flex: 1,
@@ -196,5 +196,5 @@ export const DashboardScreen = ({ onNav }: ScreenProps) => (
 
     </div>
     <BottomNav active="dashboard" onNav={onNav} items={gestorNav} />
-  </PhoneFrame>
+  </div>
 );

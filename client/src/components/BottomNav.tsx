@@ -9,10 +9,10 @@ interface NavItem {
 
 export const familiaNav: NavItem[] = [
   { icon: "🏠", label: "Inicio",      screen: "home-familia" },
-  { icon: "🎯", label: "Actividades", screen: "progreso"     },
+  { icon: "🎯", label: "Actividades", screen: "actividades"     },
   { icon: "👥", label: "Comunidad",   screen: "comunidad"    },
   { icon: "📷", label: "Escanear",    screen: "escanear-qr"  },
-  { icon: "👤", label: "Perfil",      screen: "home-familia" },
+  { icon: "👤", label: "Perfil",      screen: "perfil" },
 ];
 
 export const gestorNav: NavItem[] = [

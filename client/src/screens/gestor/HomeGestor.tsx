@@ -3,13 +3,13 @@
 // y accede a sus herramientas: actividades, comunidad, QR y dashboard.
 
 import { colors, fonts } from "../../tokens";
-import { PhoneFrame, TopBar } from "../../components/PhoneFrame";
+import {  TopBar } from "../../components/PhoneFrame";
 import { BottomNav, gestorNav } from "../../components/BottomNav";
 import { NubbiOwl } from "../../components/NubbiLogo";
 import type { ScreenProps } from "../../types";
 
 export const HomeGestorScreen = ({ onNav }: ScreenProps) => (
-  <PhoneFrame>
+  <div>
     <TopBar />
     <div style={{ flex: 1, overflowY: "auto", background: colors.offWhite }}>
 
@@ -169,5 +169,5 @@ export const HomeGestorScreen = ({ onNav }: ScreenProps) => (
 
     </div>
     <BottomNav active="home-gestor" onNav={onNav} items={gestorNav} />
-  </PhoneFrame>
+  </div>
 );

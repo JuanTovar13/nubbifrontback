@@ -3,12 +3,12 @@
 // Muestra un visor de cámara simulado con el encuadre típico de escaneo.
 
 import { colors, fonts } from "../../tokens";
-import { PhoneFrame, TopBar } from "../../components/PhoneFrame";
+import {  TopBar } from "../../components/PhoneFrame";
 import { BottomNav, familiaNav } from "../../components/BottomNav";
 import type { ScreenProps } from "../../types";
 
 export const EscanearQRScreen = ({ onNav }: ScreenProps) => (
-  <PhoneFrame>
+  <div>
     <TopBar onBack={() => onNav("home-familia")} />
     <div style={{
       flex: 1,
@@ -144,5 +144,5 @@ export const EscanearQRScreen = ({ onNav }: ScreenProps) => (
 
     </div>
     <BottomNav active="escanear-qr" onNav={onNav} items={familiaNav} />
-  </PhoneFrame>
+  </div>
 );
