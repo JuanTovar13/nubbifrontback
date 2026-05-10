@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { colors, fonts } from "../../tokens";
 import {  TopBar } from "../../components/PhoneFrame";
 import { BottomNav, gestorNav } from "../../components/BottomNav";
-import { NubbiOwl } from "../../components/NubbiLogo";
+
 
 export const HomeGestorScreen = () => {
   const navigate = useNavigate();

@@ -10,15 +10,7 @@ const aida = [
   { label: "Acción",   valor: 83, color: colors.teal   },
 ];
 
-const actividadSemanal = [
-  { dia: "L", altura: 40  },
-  { dia: "M", altura: 65  },
-  { dia: "X", altura: 55  },
-  { dia: "J", altura: 80  },
-  { dia: "V", altura: 70  },
-  { dia: "S", altura: 90, destacado: true },
-  { dia: "D", altura: 60  },
-];
+
 
 export const DashboardScreen = () => {
 

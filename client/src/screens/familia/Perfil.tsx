@@ -1,15 +1,29 @@
+import { useState, useEffect } from "preact/hooks";
 import { useNavigate } from "react-router-dom";
 import { NubbiOwl } from "../../components/NubbiLogo";
-import {  TopBar } from "../../components/PhoneFrame";
+import { TopBar } from "../../components/PhoneFrame";
 import { BottomNav, familiaNav } from "../../components/BottomNav";
 import { colors, fonts } from "../../tokens";
+import { useAuth } from "../../context/AuthContext";
+import { getBalance } from "../../api/asistencias";
 
 export const Perfil = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const [puntos, setPuntos] = useState<number | null>(null);
+
+  useEffect(() => {
+    getBalance().then((b) => setPuntos(b.total)).catch(console.error);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", height:"100vh" }}>
-      <TopBar/>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", height: "100vh" }}>
+      <TopBar />
       <div style={{ flex: 1, overflowY: "auto", background: colors.offWhite, paddingBottom: 64 }}>
 
         {/* Banner */}
@@ -35,30 +49,50 @@ export const Perfil = () => {
               <NubbiOwl size={44} />
             </div>
 
-            <div>
+            <div style={{ flex: 1 }}>
               <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)", fontFamily: fonts.body }}>
                 ¡Bienvenido de nuevo!
               </div>
               <div style={{ fontSize: 20, fontWeight: 800, color: "white", fontFamily: fonts.body }}>
-                Juan
+                {user?.full_name ?? "Usuario"}
+              </div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", fontFamily: fonts.body }}>
+                {user?.email}
               </div>
             </div>
           </div>
+
+          {/* Puntos badge */}
+          {puntos !== null && (
+            <div style={{
+              marginTop: 14,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              background: "rgba(255,255,255,0.25)",
+              borderRadius: 20,
+              padding: "6px 14px",
+            }}>
+              <span style={{ fontSize: 14 }}>⭐</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "white", fontFamily: fonts.body }}>
+                {puntos} puntos acumulados
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* Contenido del perfil */}
+        {/* Acciones */}
         <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
-
-          {/* Botón cerrar sesión */}
           <button
-            onClick={() => navigate("/")}
+            onClick={handleLogout}
             style={{
               marginTop: 8,
               width: "100%",
               padding: "13px 0",
-              background: `${colors.blue}`,
+              background: "white",
+              border: `2px solid ${colors.gray300}`,
               borderRadius: 12,
-              color: "white",
+              color: colors.gray700,
               fontWeight: 700,
               fontSize: 13,
               cursor: "pointer",
@@ -69,7 +103,7 @@ export const Perfil = () => {
               gap: 8,
             }}
           >
-            Cerrar sesión
+            🚪 Cerrar sesión
           </button>
         </div>
 

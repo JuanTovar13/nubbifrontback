@@ -1,13 +1,34 @@
-
+import { useState } from "preact/hooks";
 import { colors, fonts } from "../../tokens";
-import {  TopBar } from "../../components/PhoneFrame";
+import { TopBar } from "../../components/PhoneFrame";
 import { BottomNav, familiaNav } from "../../components/BottomNav";
+import { scanQR } from "../../api/asistencias";
 
 export const EscanearQRScreen = () => {
+  const [payload, setPayload] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [resultado, setResultado] = useState<{ puntos_ganados: number; puntos_total: number } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
+  const handleScan = async (e: Event) => {
+    e.preventDefault();
+    if (!payload.trim()) return;
+    setLoading(true);
+    setError(null);
+    setResultado(null);
+    try {
+      const res = await scanQR(payload.trim());
+      setResultado({ puntos_ganados: res.puntos_ganados, puntos_total: res.puntos_total });
+      setPayload("");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error al escanear el código");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", height:"100vh", paddingBottom:"60px" }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", height: "100vh" }}>
       <TopBar />
       <div style={{
         flex: 1,
@@ -17,17 +38,17 @@ export const EscanearQRScreen = () => {
         background: colors.offWhite,
         padding: 20,
         paddingBottom: 64,
-        overflow: "auto",
+        overflowY: "auto",
       }}>
 
         <div style={{ fontSize: 17, fontWeight: 800, color: colors.text, marginBottom: 6, fontFamily: fonts.body }}>
           Escanear código QR
         </div>
         <div style={{ fontSize: 11, color: colors.textLight, textAlign: "center", marginBottom: 24, fontFamily: fonts.body }}>
-          Usa tu cámara para escanear el código, toca el link generado para continuar.
+          Ingresa el código QR de la actividad para registrar tu asistencia.
         </div>
 
-        {/* Visor de cámara */}
+        {/* Visor decorativo */}
         <div style={{
           width: 220,
           height: 220,
@@ -45,14 +66,6 @@ export const EscanearQRScreen = () => {
             alignItems: "center",
             justifyContent: "center",
           }}>
-            <img
-              src="/qr-example.png"
-              alt="QR de ejemplo"
-              width={140}
-              height={140}
-              style={{ opacity: 0.7, objectFit: "contain" }}
-              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-            />
             <div style={{
               position: "absolute",
               width: 100,
@@ -63,7 +76,6 @@ export const EscanearQRScreen = () => {
             }} />
           </div>
 
-          {/* Esquinas del encuadre */}
           {[
             { top: 10, left: 10,   borderTop: true,    borderLeft: true  },
             { top: 10, right: 10,  borderTop: true,    borderRight: true },
@@ -88,7 +100,6 @@ export const EscanearQRScreen = () => {
             }} />
           ))}
 
-          {/* Línea de escaneo */}
           <div style={{
             position: "absolute",
             left: 10,
@@ -100,41 +111,87 @@ export const EscanearQRScreen = () => {
           }} />
         </div>
 
-        {/* URL detectada */}
-        <input 
-        placeholder="https//Nubbi-QR.com"
-        type="text"
-         style={{
-          marginTop: 24,
-          width: "100%",
-          background: "white",
-          borderRadius: 12,
-          padding: "10px 14px",
-          border: `1px solid ${colors.gray200}`,
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-        }}>
-        </input>
+        {/* Resultado exitoso */}
+        {resultado && (
+          <div style={{
+            marginTop: 20,
+            width: "100%",
+            background: colors.greenLight,
+            borderRadius: 12,
+            padding: "14px 16px",
+            textAlign: "center",
+            border: `1px solid ${colors.green}40`,
+          }}>
+            <div style={{ fontSize: 22, marginBottom: 4 }}>🎉</div>
+            <div style={{ fontWeight: 700, fontSize: 14, color: colors.green, fontFamily: fonts.body }}>
+              ¡Asistencia registrada!
+            </div>
+            <div style={{ fontSize: 12, color: colors.textLight, fontFamily: fonts.body, marginTop: 4 }}>
+              +{resultado.puntos_ganados} puntos · Total: {resultado.puntos_total}
+            </div>
+          </div>
+        )}
 
-        {/* Opción manual */}
+        {/* Error */}
+        {error && (
+          <div style={{
+            marginTop: 20,
+            width: "100%",
+            background: "#FFF0F3",
+            borderRadius: 12,
+            padding: "12px 16px",
+            textAlign: "center",
+            border: `1px solid ${colors.pinkDark}30`,
+          }}>
+            <div style={{ fontSize: 12, color: colors.pinkDark, fontFamily: fonts.body }}>{error}</div>
+          </div>
+        )}
+
+        {/* Input + botón */}
+        <form onSubmit={handleScan} style={{ marginTop: 20, width: "100%", display: "flex", flexDirection: "column", gap: 10 }}>
+          <input
+            placeholder="Pega aquí el código QR"
+            type="text"
+            value={payload}
+            onInput={(e) => setPayload((e.target as HTMLInputElement).value)}
+            style={{
+              width: "100%",
+              background: "white",
+              borderRadius: 12,
+              padding: "10px 14px",
+              border: `1px solid ${colors.gray200}`,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+              fontSize: 13,
+              fontFamily: fonts.body,
+              color: colors.text,
+              outline: "none",
+              boxSizing: "border-box",
+            }}
+          />
+          <button
+            type="submit"
+            disabled={loading || !payload.trim()}
+            style={{
+              padding: "12px 0",
+              background: loading || !payload.trim() ? colors.gray300 : colors.teal,
+              border: "none",
+              borderRadius: 12,
+              color: "white",
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: loading || !payload.trim() ? "not-allowed" : "pointer",
+              fontFamily: fonts.body,
+              transition: "background 0.2s",
+            }}
+          >
+            {loading ? "Registrando..." : "Registrar asistencia"}
+          </button>
+        </form>
+
         <div style={{ marginTop: 20, textAlign: "center" }}>
           <div style={{ fontSize: 10, color: colors.textLight, fontFamily: fonts.body }}>
-            ¿Problemas para escanear?
+            El gestor del evento te dará el código QR de la actividad.
           </div>
-          <button style={{
-            marginTop: 6,
-            background: "none",
-            border: "none",
-            color: colors.teal,
-            fontWeight: 700,
-            fontSize: 12,
-            cursor: "pointer",
-            fontFamily: fonts.body,
-          }}>
-            Ingresar código manualmente
-          </button>
         </div>
 
       </div>
