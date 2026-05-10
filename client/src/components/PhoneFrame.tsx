@@ -1,4 +1,4 @@
-import { colors, fonts } from "../tokens";
+import { colors} from "../tokens";
 import { NubbiLogo } from "./NubbiLogo";
 
 
