@@ -34,6 +34,7 @@ const MenuCard = ({
       boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
       textAlign: "left",
       width: "100%",
+      height: "30vh",
       transition: "transform 0.15s, box-shadow 0.15s",
     }}
     onMouseEnter={(e) => {
@@ -57,7 +58,7 @@ const MenuCard = ({
     }}>
       {icon}
     </div>
-    <div style={{ fontWeight: 700, fontSize: 12, color: colors.text, fontFamily: fonts.body }}>
+    <div style={{ fontWeight: 700, fontSize: 20, color: colors.text, fontFamily: fonts.body }}>
       {label}
     </div>
     <div style={{ fontSize: 10, color: colors.textLight, lineHeight: 1.3, fontFamily: fonts.body }}>
@@ -70,13 +71,13 @@ export const HomeFamiliaScreen = () => {
   const navigate = useNavigate();
 
   return (
-    <div>
+    <div className="HomeFamilia" style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", height:"100vh" }}>
       <TopBar />
-      <div style={{ flex: 1, overflowY: "auto", background: colors.offWhite }}>
+      <div style={{ flex: 1, overflowY: "auto", background: colors.offWhite, paddingBottom: 64 }}>
 
         {/* Grid del menú principal */}
-        <div style={{ padding: "16px 16px 0" }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 12, fontFamily: fonts.body }}>
+        <div style={{ padding: "4vh 2vh 7vh" }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: colors.text, marginBottom: 12, fontFamily: fonts.body }}>
             ¿Qué quieres hacer hoy?
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -84,91 +85,39 @@ export const HomeFamiliaScreen = () => {
               icon="🎯"
               label="Actividades"
               subtitle="Elige desafíos para tu familia"
-              color={colors.orange}
-              bgColor={colors.orangeVeryLight}
+              color={colors.pink}
+              bgColor={colors.pinkLight}
               onClick={() => navigate("/familia/actividades")}
             />
-            <MenuCard
-              icon="🏆"
-              label="Progreso"
-              subtitle="Gana puntos y desbloquea premios"
-              color={colors.yellow}
-              bgColor={colors.yellowLight}
-              onClick={() => navigate("/familia/actividades")}
-            />
+            
             <MenuCard
               icon="👥"
               label="Comunidad"
               subtitle="Conecta con otras familias"
-              color={colors.teal}
-              bgColor={colors.tealLight}
+              color={colors.blue}
+              bgColor={colors.blueLight}
               onClick={() => navigate("/familia/comunidad")}
             />
             <MenuCard
               icon="📷"
               label="Escanear QR"
               subtitle="Registra asistencia y aprende"
-              color={colors.blue}
-              bgColor={colors.blueLight}
+              color={colors.teal}
+              bgColor={colors.tealLight}
               onClick={() => navigate("/familia/escanear-qr")}
+            />
+            <MenuCard
+              icon="👤"
+              label="Perfil"
+              subtitle=""
+              color={colors.cream}
+              bgColor={colors.creamLight}
+              onClick={() => navigate("/familia/perfil")}
             />
           </div>
         </div>
 
-        {/* Actividad reciente */}
-        <div style={{ padding: "16px 16px 20px" }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: colors.text, marginBottom: 10, fontFamily: fonts.body }}>
-            Actividad reciente
-          </div>
-
-          {[
-            { icon: "🎨", text: "Taller de pintura completado", time: "Hoy",  pts: "+80pts", color: colors.blue },
-            { icon: "📚", text: "Lectura en familia",           time: "Ayer", pts: "+60pts", color: colors.teal   },
-          ].map((item, i) => (
-            <div key={i} style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              background: "white",
-              borderRadius: 12,
-              padding: "10px 12px",
-              marginBottom: 8,
-              boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
-            }}>
-              <div style={{
-                width: 34,
-                height: 34,
-                borderRadius: 10,
-                background: item.color + "20",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 18,
-              }}>
-                {item.icon}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: colors.text, fontFamily: fonts.body }}>
-                  {item.text}
-                </div>
-                <div style={{ fontSize: 10, color: colors.textLight, fontFamily: fonts.body }}>
-                  {item.time}
-                </div>
-              </div>
-              <div style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: colors.green,
-                background: colors.greenLight,
-                borderRadius: 8,
-                padding: "3px 8px",
-                fontFamily: fonts.body,
-              }}>
-                {item.pts}
-              </div>
-            </div>
-          ))}
-        </div>
+        
 
       </div>
       <BottomNav items={familiaNav} />

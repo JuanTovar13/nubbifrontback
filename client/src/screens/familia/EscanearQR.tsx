@@ -1,14 +1,14 @@
-import { useNavigate } from "react-router-dom";
+
 import { colors, fonts } from "../../tokens";
 import {  TopBar } from "../../components/PhoneFrame";
 import { BottomNav, familiaNav } from "../../components/BottomNav";
 
 export const EscanearQRScreen = () => {
-  const navigate = useNavigate();
+
 
   return (
-    <div>
-      <TopBar onBack={() => navigate("/familia")} />
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", height:"100vh", paddingBottom:"60px" }}>
+      <TopBar />
       <div style={{
         flex: 1,
         display: "flex",
@@ -16,7 +16,8 @@ export const EscanearQRScreen = () => {
         alignItems: "center",
         background: colors.offWhite,
         padding: 20,
-        overflowY: "auto",
+        paddingBottom: 64,
+        overflow: "auto",
       }}>
 
         <div style={{ fontSize: 17, fontWeight: 800, color: colors.text, marginBottom: 6, fontFamily: fonts.body }}>
@@ -77,7 +78,7 @@ export const EscanearQRScreen = () => {
               left:   corner.left,
               right:  corner.right,
               bottom: corner.bottom,
-              borderColor: colors.orange,
+              borderColor: colors.teal,
               borderStyle: "solid",
               borderTopWidth:    corner.borderTop    ? 3 : 0,
               borderLeftWidth:   corner.borderLeft   ? 3 : 0,
@@ -100,7 +101,10 @@ export const EscanearQRScreen = () => {
         </div>
 
         {/* URL detectada */}
-        <div style={{
+        <input 
+        placeholder="https//Nubbi-QR.com"
+        type="text"
+         style={{
           marginTop: 24,
           width: "100%",
           background: "white",
@@ -112,11 +116,7 @@ export const EscanearQRScreen = () => {
           gap: 8,
           boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
         }}>
-          <span style={{ fontSize: 14 }}>🔗</span>
-          <span style={{ fontSize: 11, color: colors.textLight, fontFamily: fonts.body }}>
-            https://Nubbi-QR.com
-          </span>
-        </div>
+        </input>
 
         {/* Opción manual */}
         <div style={{ marginTop: 20, textAlign: "center" }}>
@@ -127,7 +127,7 @@ export const EscanearQRScreen = () => {
             marginTop: 6,
             background: "none",
             border: "none",
-            color: colors.orange,
+            color: colors.teal,
             fontWeight: 700,
             fontSize: 12,
             cursor: "pointer",

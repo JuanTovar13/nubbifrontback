@@ -18,7 +18,9 @@ export const familiaNav: NavItem[] = [
 export const gestorNav: NavItem[] = [
   { icon: "🏠", label: "Inicio",      path: "/gestor"             },
   { icon: "🎯", label: "Actividades", path: "/gestor/actividades" },
+  { icon: "👥", label: "Comunidad",   path: "/gestor/comunidad"   },
   { icon: "📊", label: "Dashboard",   path: "/gestor/dashboard"   },
+  { icon: "👤", label: "Perfil",      path: "/gestor/perfil"      },
 ];
 
 export const BottomNav = ({ items }: { items: NavItem[] }) => {
@@ -28,11 +30,17 @@ export const BottomNav = ({ items }: { items: NavItem[] }) => {
   return (
     <div style={{
       display: "flex",
+      justifyContent:"space-around",
       background: "white",
       borderTop: `1px solid ${colors.gray200}`,
       padding: "6px 0 10px",
       flexShrink: 0,
       boxShadow: "0 -4px 12px rgba(0,0,0,0.06)",
+      position:"fixed",
+      width: "100%",
+      height:"fit",
+      bottom: "0",
+      left: "0"
     }}>
       {items.map((item) => {
         const isActive = pathname === item.path;

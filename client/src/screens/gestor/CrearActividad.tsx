@@ -1,24 +1,23 @@
 import { useState } from "preact/hooks";
-import { useNavigate } from "react-router-dom";
 import { colors, fonts } from "../../tokens";
 import {  TopBar } from "../../components/PhoneFrame";
 import { BottomNav, gestorNav } from "../../components/BottomNav";
 
 export const CrearActividadScreen = () => {
-  const navigate = useNavigate();
+
   const [tab,       setTab]      = useState<"crear" | "historial">("crear");
   const [titulo,    setTitulo]   = useState("");
   const [subtitulo, setSubtitulo]= useState("");
   const [desc,      setDesc]     = useState("");
 
   return (
-    <div>
-      <TopBar onBack={() => navigate("/gestor")} />
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", height:"100vh" }}>
+      <TopBar  />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", paddingBottom:"40px" }}>
 
         {/* Header rosa con tabs */}
         <div style={{
-          background: `linear-gradient(135deg, ${colors.pink}, ${colors.pinkLight})`,
+          background: colors.pink,
           padding: "14px 20px",
           flexShrink: 0,
         }}>
@@ -61,7 +60,7 @@ export const CrearActividadScreen = () => {
           </div>
         </div>
 
-        <div style={{ flex: 1, overflowY: "auto", padding: 16, background: colors.offWhite }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: 16, paddingBottom: 64, background: colors.offWhite }}>
 
           {tab === "crear" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -164,7 +163,7 @@ export const CrearActividadScreen = () => {
               <button style={{
                 marginTop: 4,
                 padding: 13,
-                background: `linear-gradient(135deg, ${colors.pink}, ${colors.pinkLight})`,
+                background: colors.pinkDark,
                 border: "none",
                 borderRadius: 12,
                 color: "white",
