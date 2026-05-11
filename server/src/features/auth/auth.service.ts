@@ -1,132 +1,132 @@
-import { supabase } from "../../config/supabase";
-import { pool } from "../../config/database";
-import { RegisterDTO, LoginDTO, AuthResponse } from "./auth.types";
-import Boom from "@hapi/boom";
+import { supabase } from "../../config/supabase";// Importación de la instancia del cliente de Supabase para interactuar con los servicios de Supabase, lo que permite a este módulo utilizar esta instancia para realizar operaciones relacionadas con la autenticación, base de datos, almacenamiento, etc. en Supabase de manera sencilla y eficiente al proporcionar una interfaz de cliente para realizar estas operaciones
+import { pool } from "../../config/database";//
+import { RegisterDTO, LoginDTO, AuthResponse } from "./auth.types";// Importación de los tipos de datos relacionados con la autenticación, lo que permite a este módulo utilizar estos tipos para definir la estructura de los datos relacionados con la autenticación, mejorar la gestión de tipos en TypeScript, y proporcionar una referencia clara sobre la estructura de los datos utilizados en las operaciones relacionadas con la autenticación en esta aplicación
+import Boom from "@hapi/boom";// Importación de la biblioteca Boom para manejar errores HTTP de manera sencilla y consistente, lo que permite a este módulo utilizar esta biblioteca para lanzar errores HTTP con mensajes claros y códigos de estado adecuados en caso de que ocurran errores durante las operaciones relacionadas con la autenticación, mejorando la gestión de errores en la aplicación al proporcionar información clara sobre los errores que puedan ocurrir durante la ejecución de estas operaciones
 
-export type RegisterResult =
-  | { type: "success"; data: AuthResponse }
-  | { type: "email_confirmation"; message: string };
+export type RegisterResult =// Tipo de resultado para la operación de registro de usuario, que puede ser un objeto con el tipo "success" y los datos de autenticación del usuario registrado, o un objeto con el tipo "email_confirmation" y un mensaje indicando que se debe confirmar el correo electrónico antes de iniciar sesión, lo que permite a este módulo definir claramente los posibles resultados de la operación de registro de usuario y proporcionar información clara sobre el resultado de esta operación para que los componentes que utilicen esta función puedan manejar estos resultados de manera adecuada
+  | { type: "success"; data: AuthResponse }// Tipo de resultado para la operación de registro de usuario que indica un registro exitoso, con los datos de autenticación del usuario registrado, lo que permite a los componentes que utilicen esta función manejar este resultado de manera adecuada al proporcionar la información necesaria para iniciar sesión o realizar otras operaciones relacionadas con el usuario registrado
+  | { type: "email_confirmation"; message: string };// Tipo de resultado para la operación de registro de usuario que indica que se debe confirmar el correo electrónico antes de iniciar sesión, con un mensaje que proporciona esta información, lo que permite a los componentes que utilicen esta función manejar este resultado de manera adecuada al proporcionar información clara sobre la necesidad de confirmar el correo electrónico antes de iniciar sesión y mejorar la experiencia del usuario al proporcionar esta información de manera clara y concisa
 
-export const registerUserService = async (
-  data: RegisterDTO
-): Promise<RegisterResult> => {
-  const { email, password, full_name, role = "familia" } = data;
+export const registerUserService = async (// Función asíncrona para manejar el registro de un nuevo usuario, lo que permite a este módulo procesar la solicitud de registro de usuario, delegar la lógica de negocio relacionada con el registro al cliente de Supabase para crear el usuario en Supabase, y manejar la creación o actualización del perfil del usuario en la base de datos local, mejorando la gestión de usuarios en la aplicación al proporcionar una función clara y estructurada para manejar el proceso de registro de usuarios
+  data: RegisterDTO// Datos necesarios para el registro de un nuevo usuario, que incluyen el correo electrónico, la contraseña, el nombre completo y opcionalmente el rol del usuario, lo que permite a esta función recibir esta información de manera clara y estructurada para procesar la operación de registro de usuario de manera eficiente y proporcionar una referencia clara sobre los datos necesarios para esta operación
+): Promise<RegisterResult> => {// Tipo de resultado que devuelve esta función, que puede ser un objeto con el tipo "success" y los datos de autenticación del usuario registrado, o un objeto con el tipo "email_confirmation" y un mensaje indicando que se debe confirmar el correo electrónico antes de iniciar sesión, lo que permite a esta función definir claramente los posibles resultados de la operación de registro de usuario y proporcionar información clara sobre el resultado de esta operación para que los componentes que utilicen esta función puedan manejar estos resultados de manera adecuada
+  const { email, password, full_name, role = "familia" } = data;// Desestructuración de los datos necesarios para el registro de un nuevo usuario, lo que permite a esta función extraer claramente la información necesaria para procesar la operación de registro de usuario de manera eficiente y proporcionar una referencia clara sobre los datos utilizados en esta operación
 
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email,
-    password,
+  const { data: authData, error: authError } = await supabase.auth.signUp({// Llamada al método signUp del cliente de Supabase para crear un nuevo usuario con el correo electrónico y la contraseña proporcionados, lo que permite a esta función delegar la lógica de negocio relacionada con la creación de usuarios en Supabase a este método, mejorando la gestión de usuarios en la aplicación al utilizar los servicios de autenticación de Supabase para manejar esta operación de manera eficiente y segura
+    email,// Correo electrónico del nuevo usuario a registrar, lo que permite a este método utilizar esta información para crear el usuario en Supabase y manejar la autenticación de este usuario de manera eficiente
+    password,// Contraseña del nuevo usuario a registrar, lo que permite a este método utilizar esta información para crear el usuario en Supabase y manejar la autenticación de este usuario de manera eficiente
   });
   
-  if (authError) throw Boom.badRequest(authError.message);
+  if (authError) throw Boom.badRequest(authError.message);// Manejo de errores en caso de que ocurra un error durante la creación del usuario en Supabase, lo que permite a esta función lanzar un error HTTP con un mensaje claro y un código de estado adecuado en caso de que ocurra un error durante esta operación, mejorando la gestión de errores en la aplicación al proporcionar información clara sobre los errores que puedan ocurrir durante la ejecución de esta operación
 
-  const userId = authData.user?.id;
-  if (!userId) throw Boom.internal("Error creando usuario");
+  const userId = authData.user?.id;// Obtención del ID del usuario creado en Supabase, lo que permite a esta función utilizar esta información para manejar la creación o actualización del perfil del usuario en la base de datos local, mejorando la gestión de usuarios en la aplicación al proporcionar una referencia clara sobre el ID del usuario creado en Supabase para su uso en otras operaciones relacionadas con este usuario
+  if (!userId) throw Boom.internal("Error creando usuario");// Manejo de errores en caso de que no se pueda obtener el ID del usuario creado en Supabase, lo que permite a esta función lanzar un error HTTP con un mensaje claro y un código de estado adecuado en caso de que ocurra un error durante esta operación, mejorando la gestión de errores en la aplicación al proporcionar información clara sobre los errores que puedan ocurrir durante la ejecución de esta operación
   
   
   
-  await pool.query(
-    `INSERT INTO profiles (id, email, full_name, role)
-     VALUES ($1, $2, $3, $4)
-     ON CONFLICT (id) DO UPDATE
-     SET email = $2, full_name = $3, role = $4`,
-    [userId, email, full_name, role]
+  await pool.query(// Consulta SQL para insertar o actualizar el perfil del usuario en la base de datos local, lo que permite a esta función manejar la creación o actualización del perfil del usuario en la base de datos local de manera eficiente al utilizar una consulta SQL con la cláusula ON CONFLICT para evitar duplicados y mantener la información del perfil actualizada, mejorando la gestión de usuarios en la aplicación al proporcionar una forma clara y eficiente de manejar los perfiles de los usuarios en la base de datos local
+    `INSERT INTO profiles (id, email, full_name, role)// Consulta SQL para insertar o actualizar el perfil del usuario en la base de datos local, lo que permite a esta función manejar la creación o actualización del perfil del usuario en la base de datos local de manera eficiente al utilizar una consulta SQL con la cláusula ON CONFLICT para evitar duplicados y mantener la información del perfil actualizada, mejorando la gestión de usuarios en la aplicación al proporcionar una forma clara y eficiente de manejar los perfiles de los usuarios en la base de datos local
+     VALUES ($1, $2, $3, $4)// Consulta SQL para insertar o actualizar el perfil del usuario en la base de datos local, lo que permite a esta función manejar la creación o actualización del perfil del usuario en la base de datos local de manera eficiente al utilizar una consulta SQL con la cláusula ON CONFLICT para evitar duplicados y mantener la información del perfil actualizada, mejorando la gestión de usuarios en la aplicación al proporcionar una forma clara y eficiente de manejar los perfiles de los usuarios en la base de datos local
+     ON CONFLICT (id) DO UPDATE// Consulta SQL para insertar o actualizar el perfil del usuario en la base de datos local, lo que permite a esta función manejar la creación o actualización del perfil del usuario en la base de datos local de manera eficiente al utilizar una consulta SQL con la cláusula ON CONFLICT para evitar duplicados y mantener la información del perfil actualizada, mejorando la gestión de usuarios en la aplicación al proporcionar una forma clara y eficiente de manejar los perfiles de los usuarios en la base de datos local
+     SET email = $2, full_name = $3, role = $4`,// Consulta SQL para insertar o actualizar el perfil del usuario en la base de datos local, lo que permite a esta función manejar la creación o actualización del perfil del usuario en la base de datos local de manera eficiente al utilizar una consulta SQL con la cláusula ON CONFLICT para evitar duplicados y mantener la información del perfil actualizada, mejorando la gestión de usuarios en la aplicación al proporcionar una forma clara y eficiente de manejar los perfiles de los usuarios en la base de datos local
+    [userId, email, full_name, role]// Parámetros para la consulta SQL de inserción o actualización del perfil del usuario en la base de datos local, lo que permite a esta función proporcionar los valores necesarios para esta operación de manera clara y estructurada, mejorando la gestión de usuarios en la aplicación al proporcionar una forma clara y eficiente de manejar los perfiles de los usuarios en la base de datos local
   );
 
-  if (!authData.session) {
+  if (!authData.session) {// Verificación de si se ha creado una sesión para el usuario después del registro, lo que permite a esta función manejar el caso en el que se requiere la confirmación del correo electrónico antes de iniciar sesión, y proporcionar una respuesta clara sobre esta situación para que los componentes que utilicen esta función puedan manejar este resultado de manera adecuada
     return {
-      type: "email_confirmation",
-      message: "Revisa tu correo para confirmar tu cuenta antes de iniciar sesión.",
+      type: "email_confirmation",// Tipo de resultado que indica que se debe confirmar el correo electrónico antes de iniciar sesión, lo que permite a los componentes que utilicen esta función manejar este resultado de manera adecuada al proporcionar información clara sobre la necesidad de confirmar el correo electrónico antes de iniciar sesión y mejorar la experiencia del usuario al proporcionar esta información de manera clara y concisa
+      message: "Revisa tu correo para confirmar tu cuenta antes de iniciar sesión.",// Mensaje que proporciona información clara sobre la necesidad de confirmar el correo electrónico antes de iniciar sesión, lo que permite a los componentes que utilicen esta función manejar este resultado de manera adecuada al proporcionar información clara sobre la necesidad de confirmar el correo electrónico antes de iniciar sesión y mejorar la experiencia del usuario al proporcionar esta información de manera clara y concisa
     };
   }
 
   return {
-    type: "success",
+    type: "success",// Tipo de resultado que indica un registro exitoso, con los datos de autenticación del usuario registrado, lo que permite a los componentes que utilicen esta función manejar este resultado de manera adecuada al proporcionar la información necesaria para iniciar sesión o realizar otras operaciones relacionadas con el usuario registrado
     data: {
-      user: { id: userId, email, role, full_name },
-      session: {
-        access_token: authData.session.access_token,
-        refresh_token: authData.session.refresh_token,
-        expires_at: authData.session.expires_at,
+      user: { id: userId, email, role, full_name },// Información del usuario registrado, lo que permite a esta función proporcionar esta información en el resultado de la operación de registro para que los componentes que utilicen esta función puedan manejar esta información de manera adecuada al proporcionar los datos necesarios para iniciar sesión o realizar otras operaciones relacionadas con el usuario registrado
+      session: {// Información de la sesión del usuario registrado, lo que permite a esta función proporcionar esta información en el resultado de la operación de registro para que los componentes que utilicen esta función puedan manejar esta información de manera adecuada al proporcionar los datos necesarios para iniciar sesión o realizar otras operaciones relacionadas con el usuario registrado
+        access_token: authData.session.access_token,// Token de acceso de la sesión del usuario registrado, lo que permite a esta función proporcionar esta información en el resultado de la operación de registro para que los componentes que utilicen esta función puedan manejar esta información de manera adecuada al proporcionar los datos necesarios para iniciar sesión o realizar otras operaciones relacionadas con el usuario registrado
+        refresh_token: authData.session.refresh_token,// Token de actualización de la sesión del usuario registrado, lo que permite a esta función proporcionar esta información en el resultado de la operación de registro para que los componentes que utilicen esta función puedan manejar esta información de manera adecuada al proporcionar los datos necesarios para iniciar sesión o realizar otras operaciones relacionadas con el usuario registrado
+        expires_at: authData.session.expires_at,// Fecha de expiración de la sesión del usuario registrado, lo que permite a esta función proporcionar esta información en el resultado de la operación de registro para que los componentes que utilicen esta función puedan manejar esta información de manera adecuada al proporcionar los datos necesarios para iniciar sesión o realizar otras operaciones relacionadas con el usuario registrado
       },
     },
   };
 };
 
-export const loginUserService = async (data: LoginDTO): Promise<AuthResponse> => {
-  const { email, password } = data;
+export const loginUserService = async (data: LoginDTO): Promise<AuthResponse> => {// Función asíncrona para manejar el inicio de sesión de un usuario, lo que permite a este módulo procesar la solicitud de inicio de sesión de usuario, delegar la lógica de negocio relacionada con el inicio de sesión al cliente de Supabase para autenticar al usuario en Supabase, y manejar la obtención de la información del perfil del usuario desde la base de datos local, mejorando la gestión de usuarios en la aplicación al proporcionar una función clara y estructurada para manejar el proceso de inicio de sesión de usuarios
+  const { email, password } = data;// Desestructuración de los datos necesarios para el inicio de sesión de un usuario, lo que permite a esta función extraer claramente la información necesaria para procesar la operación de inicio de sesión de usuario de manera eficiente y proporcionar una referencia clara sobre los datos utilizados en esta operación
 
-  const { data: authData, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
+  const { data: authData, error } = await supabase.auth.signInWithPassword({// Llamada al método signInWithPassword del cliente de Supabase para autenticar al usuario con el correo electrónico y la contraseña proporcionados, lo que permite a esta función delegar la lógica de negocio relacionada con la autenticación de usuarios en Supabase a este método, mejorando la gestión de usuarios en la aplicación al utilizar los servicios de autenticación de Supabase para manejar esta operación de manera eficiente y segura
+    email,// Correo electrónico del usuario que intenta iniciar sesión, lo que permite a este método utilizar esta información para autenticar al usuario en Supabase y manejar la autenticación de este usuario de manera eficiente
+    password,// Contraseña del usuario que intenta iniciar sesión, lo que permite a este método utilizar esta información para autenticar al usuario en Supabase y manejar la autenticación de este usuario de manera eficiente
   });
 
-  if (error) throw Boom.unauthorized(error.message || "Credenciales inválidas");
-  if (!authData.user || !authData.session) throw Boom.unauthorized("Usuario no encontrado");
+  if (error) throw Boom.unauthorized(error.message || "Credenciales inválidas");// Manejo de errores en caso de que ocurra un error durante la autenticación del usuario en Supabase, lo que permite a esta función lanzar un error HTTP con un mensaje claro y un código de estado adecuado en caso de que ocurra un error durante esta operación, mejorando la gestión de errores en la aplicación al proporcionar información clara sobre los errores que puedan ocurrir durante la ejecución de esta operación
+  if (!authData.user || !authData.session) throw Boom.unauthorized("Usuario no encontrado");//  Manejo de errores en caso de que no se pueda obtener la información del usuario o la sesión después de la autenticación en Supabase, lo que permite a esta función lanzar un error HTTP con un mensaje claro y un código de estado adecuado en caso de que ocurra un error durante esta operación, mejorando la gestión de errores en la aplicación al proporcionar información clara sobre los errores que puedan ocurrir durante la ejecución de esta operación
 
-  const result = await pool.query(
-    "SELECT id, email, full_name, role FROM profiles WHERE id = $1 LIMIT 1",
-    [authData.user.id]
+  const result = await pool.query(// Consulta SQL para obtener la información del perfil del usuario desde la base de datos local, lo que permite a esta función manejar la obtención de la información del perfil del usuario de manera eficiente al utilizar una consulta SQL para obtener esta información, mejorando la gestión de usuarios en la aplicación al proporcionar una forma clara y eficiente de manejar los perfiles de los usuarios en la base de datos local
+    "SELECT id, email, full_name, role FROM profiles WHERE id = $1 LIMIT 1",// Consulta SQL para obtener la información del perfil del usuario desde la base de datos local, lo que permite a esta función manejar la obtención de la información del perfil del usuario de manera eficiente al utilizar una consulta SQL para obtener esta información, mejorando la gestión de usuarios en la aplicación al proporcionar una forma clara y eficiente de manejar los perfiles de los usuarios en la base de datos local
+    [authData.user.id]// Parámetro para la consulta SQL de obtención de la información del perfil del usuario desde la base de datos local, lo que permite a esta función proporcionar el valor necesario para esta operación de manera clara y estructurada, mejorando la gestión de usuarios en la aplicación al proporcionar una forma clara y eficiente de manejar los perfiles de los usuarios en la base de datos local
   );
 
-  if (result.rowCount === 0) throw Boom.notFound("Perfil no encontrado");
+  if (result.rowCount === 0) throw Boom.notFound("Perfil no encontrado");// Manejo de errores en caso de que no se pueda encontrar el perfil del usuario en la base de datos local, lo que permite a esta función lanzar un error HTTP con un mensaje claro y un código de estado adecuado en caso de que ocurra un error durante esta operación, mejorando la gestión de errores en la aplicación al proporcionar información clara sobre los errores que puedan ocurrir durante la ejecución de esta operación
 
-  const profile = result.rows[0];
+  const profile = result.rows[0];// Obtención de la información del perfil del usuario desde el resultado de la consulta SQL, lo que permite a esta función utilizar esta información para construir el resultado de la operación de inicio de sesión con los datos del usuario y la sesión, mejorando la gestión de usuarios en la aplicación al proporcionar una forma clara y eficiente de manejar los perfiles de los usuarios en la base de datos local y utilizar esta información en otras operaciones relacionadas con el usuario autenticado
 
-  return {
-    user: {
-      id: authData.user.id,
-      email: profile.email,
+  return {// Construcción del resultado de la operación de inicio de sesión con los datos del usuario y la sesión, lo que permite a esta función proporcionar esta información en el resultado de la operación de inicio de sesión para que los componentes que utilicen esta función puedan manejar esta información de manera adecuada al proporcionar los datos necesarios para iniciar sesión o realizar otras operaciones relacionadas con el usuario autenticado
+    user: {// Información del usuario autenticado, lo que permite a esta función proporcionar esta información en el resultado de la operación de inicio de sesión para que los componentes que utilicen esta función puedan manejar esta información de manera adecuada al proporcionar los datos necesarios para iniciar sesión o realizar otras operaciones relacionadas con el usuario autenticado
+      id: authData.user.id,// ID del usuario autenticado, lo que permite a esta función proporcionar esta información en el resultado de la operación de inicio de sesión para que los componentes que utilicen esta función puedan manejar esta información de manera adecuada al proporcionar los datos necesarios para iniciar sesión o realizar otras operaciones relacionadas con el usuario autenticado
+      email: profile.email,//
       role: profile.role,
       full_name: profile.full_name,
     },
-    session: {
-      access_token: authData.session.access_token,
-      refresh_token: authData.session.refresh_token,
-      expires_at: authData.session.expires_at,
+    session: {// Información de la sesión del usuario autenticado, lo que permite a esta función proporcionar esta información en el resultado de la operación de inicio de sesión para que los componentes que utilicen esta función puedan manejar esta información de manera adecuada al proporcionar los datos necesarios para iniciar sesión o realizar otras operaciones relacionadas con el usuario autenticado
+      access_token: authData.session.access_token,// Token de acceso de la sesión del usuario autenticado, lo que permite a esta función proporcionar esta información en el resultado de la operación de inicio de sesión para que los componentes que utilicen esta función puedan manejar esta información de manera adecuada al proporcionar los datos necesarios para iniciar sesión o realizar otras operaciones relacionadas con el usuario autenticado
+      refresh_token: authData.session.refresh_token,// Token de actualización de la sesión del usuario autenticado, lo que permite a esta función proporcionar esta información en el resultado de la operación de inicio de sesión para que los componentes que utilicen esta función puedan manejar esta información de manera adecuada al proporcionar los datos necesarios para iniciar sesión o realizar otras operaciones relacionadas con el usuario autenticado
+      expires_at: authData.session.expires_at,// Fecha de expiración de la sesión del usuario autenticado, lo que permite a esta función proporcionar esta información en el resultado de la operación de inicio de sesión para que los componentes que utilicen esta función puedan manejar esta información de manera adecuada al proporcionar los datos necesarios para iniciar sesión o realizar otras operaciones relacionadas con el usuario autenticado
     },
   };
 };
 
-export const refreshTokenService = async (refreshToken: string): Promise<AuthResponse> => {
-  const { data, error } = await supabase.auth.refreshSession({
-    refresh_token: refreshToken,
+export const refreshTokenService = async (refreshToken: string): Promise<AuthResponse> => {// Función asíncrona para manejar la actualización de la sesión de un usuario utilizando un token de actualización, lo que permite a este módulo procesar la solicitud de actualización de sesión, delegar la lógica de negocio relacionada con la actualización de sesión al cliente de Supabase para obtener una nueva sesión utilizando el token de actualización, y manejar la obtención de la información del perfil del usuario desde la base de datos local, mejorando la gestión de usuarios en la aplicación al proporcionar una función clara y estructurada para manejar el proceso de actualización de sesión de usuarios
+  const { data, error } = await supabase.auth.refreshSession({// Llamada al método refreshSession del cliente de Supabase para obtener una nueva sesión utilizando el token de actualización proporcionado, lo que permite a esta función delegar la lógica de negocio relacionada con la actualización de sesión en Supabase a este método, mejorando la gestión de usuarios en la aplicación al utilizar los servicios de autenticación de Supabase para manejar esta operación de manera eficiente y segura
+    refresh_token: refreshToken,// Token de actualización utilizado para obtener una nueva sesión, lo que permite a este método utilizar esta información para obtener una nueva sesión en Supabase y manejar la autenticación de este usuario de manera eficiente
   });
 
-  if (error || !data.session || !data.user) {
-    throw Boom.unauthorized("Sesión expirada, inicia sesión nuevamente");
+  if (error || !data.session || !data.user) {// Manejo de errores en caso de que ocurra un error durante la actualización de sesión en Supabase o no se pueda obtener la información de la nueva sesión o el usuario, lo que permite a esta función lanzar un error HTTP con un mensaje claro y un código de estado adecuado en caso de que ocurra un error durante esta operación, mejorando la gestión de errores en la aplicación al proporcionar información clara sobre los errores que puedan ocurrir durante la ejecución de esta operación
+    throw Boom.unauthorized("Sesión expirada, inicia sesión nuevamente");// Lanzamiento de un error HTTP con un mensaje claro y un código de estado adecuado en caso de que ocurra un error durante la actualización de sesión en Supabase o no se pueda obtener la información de la nueva sesión o el usuario, lo que permite a esta función manejar esta situación de manera adecuada al proporcionar información clara sobre la necesidad de iniciar sesión nuevamente debido a la expiración de la sesión, mejorando la experiencia del usuario al proporcionar esta información de manera clara y concisa
   }
 
-  const result = await pool.query(
-    "SELECT id, email, full_name, role FROM profiles WHERE id = $1 LIMIT 1",
-    [data.user.id]
+  const result = await pool.query(// Consulta SQL para obtener la información del perfil del usuario desde la base de datos local utilizando el ID del usuario obtenido de la nueva sesión, lo que permite a esta función manejar la obtención de la información del perfil del usuario de manera eficiente al utilizar una consulta SQL para obtener esta información, mejorando la gestión de usuarios en la aplicación al proporcionar una forma clara y eficiente de manejar los perfiles de los usuarios en la base de datos local
+    "SELECT id, email, full_name, role FROM profiles WHERE id = $1 LIMIT 1",// Consulta SQL para obtener la información del perfil del usuario desde la base de datos local utilizando el ID del usuario obtenido de la nueva sesión, lo que permite a esta función manejar la obtención de la información del perfil del usuario de manera eficiente al utilizar una consulta SQL para obtener esta información, mejorando la gestión de usuarios en la aplicación al proporcionar una forma clara y eficiente de manejar los perfiles de los usuarios en la base de datos local
+    [data.user.id]// Parámetro para la consulta SQL de obtención de la información del perfil del usuario desde la base de datos local utilizando el ID del usuario obtenido de la nueva sesión, lo que permite a esta función proporcionar el valor necesario para esta operación de manera clara y estructurada, mejorando la gestión de usuarios en la aplicación al proporcionar una forma clara y eficiente de manejar los perfiles de los usuarios en la base de datos local
   );
 
-  if (result.rowCount === 0) throw Boom.notFound("Perfil no encontrado");
+  if (result.rowCount === 0) throw Boom.notFound("Perfil no encontrado");// Manejo de errores en caso de que no se pueda encontrar el perfil del usuario en la base de datos local después de obtener la nueva sesión, lo que permite a esta función lanzar un error HTTP con un mensaje claro y un código de estado adecuado en caso de que ocurra un error durante esta operación, mejorando la gestión de errores en la aplicación al proporcionar información clara sobre los errores que puedan ocurrir durante la ejecución de esta operación
 
-  const profile = result.rows[0];
+  const profile = result.rows[0];// Obtención de la información del perfil del usuario desde el resultado de la consulta SQL, lo que permite a esta función utilizar esta información para construir el resultado de la operación de actualización de sesión con los datos del usuario y la nueva sesión, mejorando la gestión de usuarios en la aplicación al proporcionar una forma clara y eficiente de manejar los perfiles de los usuarios en la base de datos local y utilizar esta información en otras operaciones relacionadas con el usuario autenticado
 
-  return {
-    user: {
+  return {// Construcción del resultado de la operación de actualización de sesión con los datos del usuario y la nueva sesión, lo que permite a esta función proporcionar esta información en el resultado de la operación de actualización de sesión para que los componentes que utilicen esta función puedan manejar esta información de manera adecuada al proporcionar los datos necesarios para iniciar sesión o realizar otras operaciones relacionadas con el usuario autenticado
+    user: {// Información del usuario autenticado después de la actualización de sesión, lo que permite a esta función proporcionar esta información en el resultado de la operación de actualización de sesión para que los componentes que utilicen esta función puedan manejar esta información de manera adecuada al proporcionar los datos necesarios para iniciar sesión o realizar otras operaciones relacionadas con el usuario autenticado
       id: data.user.id,
       email: profile.email,
       role: profile.role,
       full_name: profile.full_name,
     },
     session: {
-      access_token: data.session.access_token,
-      refresh_token: data.session.refresh_token,
-      expires_at: data.session.expires_at,
+      access_token: data.session.access_token,// Token de acceso de la nueva sesión después de la actualización, lo que permite a esta función proporcionar esta información en el resultado de la operación de actualización de sesión para que los componentes que utilicen esta función puedan manejar esta información de manera adecuada al proporcionar los datos necesarios para iniciar sesión o realizar otras operaciones relacionadas con el usuario autenticado
+      refresh_token: data.session.refresh_token,// Token de actualización de la nueva sesión después de la actualización, lo que permite a esta función proporcionar esta información en el resultado de la operación de actualización de sesión para que los componentes que utilicen esta función puedan manejar esta información de manera adecuada al proporcionar los datos necesarios para iniciar sesión o realizar otras operaciones relacionadas con el usuario autenticado
+      expires_at: data.session.expires_at,// Fecha de expiración de la nueva sesión después de la actualización, lo que permite a esta función proporcionar esta información en el resultado de la operación de actualización de sesión para que los componentes que utilicen esta función puedan manejar esta información de manera adecuada al proporcionar los datos necesarios para iniciar sesión o realizar otras operaciones relacionadas con el usuario autenticado
     },
   };
 };
 
-export const getProfileService = async (userId: string) => {
-  const result = await pool.query(
-    "SELECT id, email, full_name, role FROM profiles WHERE id = $1 LIMIT 1",
-    [userId]
+export const getProfileService = async (userId: string) => {// Función asíncrona para obtener la información del perfil de un usuario utilizando su ID, lo que permite a este módulo manejar la obtención de la información del perfil del usuario de manera eficiente al utilizar una consulta SQL para obtener esta información desde la base de datos local, mejorando la gestión de usuarios en la aplicación al proporcionar una forma clara y eficiente de manejar los perfiles de los usuarios en la base de datos local y utilizar esta información en otras operaciones relacionadas con el usuario
+  const result = await pool.query(// Consulta SQL para obtener la información del perfil del usuario desde la base de datos local utilizando el ID del usuario, lo que permite a esta función manejar la obtención de la información del perfil del usuario de manera eficiente al utilizar una consulta SQL para obtener esta información, mejorando la gestión de usuarios en la aplicación al proporcionar una forma clara y eficiente de manejar los perfiles de los usuarios en la base de datos local
+    "SELECT id, email, full_name, role FROM profiles WHERE id = $1 LIMIT 1",// Consulta SQL para obtener la información del perfil del usuario desde la base de datos local utilizando el ID del usuario, lo que permite a esta función manejar la obtención de la información del perfil del usuario de manera eficiente al utilizar una consulta SQL para obtener esta información, mejorando la gestión de usuarios en la aplicación al proporcionar una forma clara y eficiente de manejar los perfiles de los usuarios en la base de datos local
+    [userId]// Parámetro para la consulta SQL de obtención de la información del perfil del usuario desde la base de datos local utilizando el ID del usuario, lo que permite a esta función proporcionar el valor necesario para esta operación de manera clara y estructurada, mejorando la gestión de usuarios en la aplicación al proporcionar una forma clara y eficiente de manejar los perfiles de los usuarios en la base de datos local
   );
 
-  if (result.rowCount === 0) throw Boom.notFound("Perfil no encontrado");
+  if (result.rowCount === 0) throw Boom.notFound("Perfil no encontrado");// Manejo de errores en caso de que no se pueda encontrar el perfil del usuario en la base de datos local, lo que permite a esta función lanzar un error HTTP con un mensaje claro y un código de estado adecuado en caso de que ocurra un error durante esta operación, mejorando la gestión de errores en la aplicación al proporcionar información clara sobre los errores que puedan ocurrir durante la ejecución de esta operación
 
-  return result.rows[0];
+  return result.rows[0];// Retorno de la información del perfil del usuario obtenida desde la base de datos local, lo que permite a esta función proporcionar esta información para que los componentes que utilicen esta función puedan manejar esta información de manera adecuada al proporcionar los datos necesarios para realizar otras operaciones relacionadas con el usuario
 };
