@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { supabase } from "../config/supabase";
+import { pool } from "../config/database";
+
 export interface AuthRequest extends Request {
   user?: {
     id: string;
@@ -22,10 +24,15 @@ export const authMiddleware = async (req: AuthRequest, res: Response, next: Next
       return res.status(401).json({ error: "Token inválido" });
     }
 
+    const result = await pool.query(
+      "SELECT role FROM profiles WHERE id = $1 LIMIT 1",
+      [data.user.id]
+    );
+
     req.user = {
       id: data.user.id,
       email: data.user.email,
-      role: data.user.app_metadata?.role || "familia",
+      role: result.rows[0]?.role ?? "familia",
     };
 
     next();

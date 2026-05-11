@@ -9,6 +9,3 @@ export const pool = new Pool({
   password: DB_PASSWORD,
 });
 
-export const initDb = async () => {
-  await pool.query('SELECT 1');
-};

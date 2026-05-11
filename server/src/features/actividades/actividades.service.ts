@@ -1,65 +1,74 @@
 import { randomUUID } from "crypto";
-import { supabase } from "../../config/supabase";
+import { pool } from "../../config/database";
 import Boom from "@hapi/boom";
 import { Actividad, CreateActividadDTO, UpdateActividadDTO } from "./actividades.types";
-
+console.log("CREATE SERVICE HIT");
 export const createActividadService = async (
   data: CreateActividadDTO,
   gestorId: string
 ): Promise<Actividad> => {
-  const { titulo, descripcion, fecha, ubicacion, puntos = 10 } = data;
+  const { titulo, descripcion, fecha_inicio, ubicacion, imagen_url } = data;
 
-  const { data: actividad, error } = await supabase
-    .from("actividades")
-    .insert({
+  try {
+  const result = await pool.query<Actividad>(
+    `INSERT INTO actividades (
       titulo,
       descripcion,
-      fecha,
+      fecha_inicio,
       ubicacion,
-      qr_payload: randomUUID(),
-      puntos,
-      activa: true,
-      created_by: gestorId,
-    })
-    .select()
-    .single();
+      imagen_url,
+      qr_payload,
+      creada_por
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    RETURNING *`,
+    [
+      titulo,
+      descripcion ?? null,
+      fecha_inicio,
+      ubicacion ?? null,
+      imagen_url ?? null,
+      randomUUID(),
+      gestorId
+    ]
+  );
 
-  if (error) {
-    throw Boom.internal(error.message);
-  }
-  return actividad;
+  return result.rows[0];
+} catch (err) {
+  console.error("CREATE ACTIVIDAD ERROR:", err);
+  throw err;
+}
+
 };
 
 export const listActividadesService = async (
   soloActivas = false
 ): Promise<Actividad[]> => {
-  let query = supabase
-    .from("actividades")
-    .select("*")
-    .order("created_at", { ascending: false });
+  let query: string;
+  let params: unknown[];
 
-  if (soloActivas) query = query.eq("activa", true);
-
-  const { data, error } = await query;
-  if (error) {
-    throw Boom.internal(error.message);
+  if (soloActivas) {
+    query = `SELECT * FROM actividades
+             WHERE fecha_inicio <= NOW() 
+             ORDER BY created_at DESC`;
+    params = [];
+  } else {
+    query = `SELECT * FROM actividades ORDER BY created_at DESC`;
+    params = [];
   }
-  return data || [];
+
+  const result = await pool.query<Actividad>(query, params);
+  return result.rows;
 };
 
-export const getActividadByIdService = async (
-  id: string
-): Promise<Actividad> => {
-  const { data, error } = await supabase
-    .from("actividades")
-    .select("*")
-    .eq("id", id)
-    .single();
+export const getActividadByIdService = async (id: string): Promise<Actividad> => {
+  const result = await pool.query<Actividad>(
+    `SELECT * FROM actividades WHERE id = $1 LIMIT 1`,
+    [id]
+  );
 
-  if (error || !data) {
-    throw Boom.notFound("Actividad no encontrada");
-  }
-  return data;
+  if (result.rowCount === 0) throw Boom.notFound("Actividad no encontrada");
+  return result.rows[0];
 };
 
 export const updateActividadService = async (
@@ -68,21 +77,20 @@ export const updateActividadService = async (
   gestorId: string
 ): Promise<Actividad> => {
   const existing = await getActividadByIdService(id);
-  if (existing.created_by !== gestorId) {
-    throw Boom.forbidden("No autorizado");
-  }
+  if (existing.creada_por !== gestorId) throw Boom.forbidden("No autorizado");
 
-  const { data: updated, error } = await supabase
-    .from("actividades")
-    .update(data)
-    .eq("id", id)
-    .select()
-    .single();
+  const fields = Object.entries(data).filter(([, v]) => v !== undefined);
+  if (fields.length === 0) return existing;
 
-  if (error) {
-    throw Boom.internal(error.message);
-  }
-  return updated;
+  const setClauses = fields.map(([k], i) => `${k} = $${i + 1}`).join(", ");
+  const values = fields.map(([, v]) => v);
+
+  const result = await pool.query<Actividad>(
+    `UPDATE actividades SET ${setClauses} WHERE id = $${fields.length + 1} RETURNING *`,
+    [...values, id]
+  );
+
+  return result.rows[0];
 };
 
 export const deleteActividadService = async (
@@ -90,25 +98,18 @@ export const deleteActividadService = async (
   gestorId: string
 ): Promise<void> => {
   const existing = await getActividadByIdService(id);
-  if (existing.created_by !== gestorId) {
-    throw Boom.forbidden("No autorizado");
-  }
+  if (existing.creada_por !== gestorId) throw Boom.forbidden("No autorizado");
 
-  const { error } = await supabase.from("actividades").delete().eq("id", id);
-  if (error) {
-    throw Boom.internal(error.message);
-  }
+  await pool.query(`DELETE FROM actividades WHERE id = $1`, [id]);
 };
 
 export const getActividadByQrPayloadService = async (
   qr_payload: string
 ): Promise<Actividad | null> => {
-  const { data, error } = await supabase
-    .from("actividades")
-    .select("*")
-    .eq("qr_payload", qr_payload)
-    .single();
+  const result = await pool.query<Actividad>(
+    `SELECT * FROM actividades WHERE qr_payload = $1 LIMIT 1`,
+    [qr_payload]
+  );
 
-  if (error) return null;
-  return data;
+  return result.rows[0] ?? null;
 };

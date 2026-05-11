@@ -7,7 +7,7 @@ export const RoleSelector = () => {
   const navigate = useNavigate();
 
   const onSelect = (rol: UserRole) => {
-    navigate(rol === "familia" ? "/familia" : "/gestor");
+    navigate("/login", { state: { role: rol } });
   };
 
   return (

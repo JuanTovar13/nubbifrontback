@@ -1,12 +1,25 @@
-import type { User, Session } from "@supabase/supabase-js";
+export type UserRole = "familia" | "gestor";
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  full_name: string;
+  role: UserRole;
+}
+
+export interface AuthSession {
+  access_token: string;
+  refresh_token: string;
+  expires_at?: number; // Unix segundos
+}
 
 export interface AuthData {
-  user: User;
-  session: Session;
+  user: AuthUser;
+  session: AuthSession;
 }
 
 export interface Creator {
-  userName: string;
+  full_name: string;
   email: string;
 }
 
@@ -24,5 +37,3 @@ export interface Message {
   created_at: string;
   created_by: Creator;
 }
-
-export type UserRole = "familia" | "gestor";

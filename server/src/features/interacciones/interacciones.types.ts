@@ -6,7 +6,6 @@ export interface Interaccion {
   interes: boolean;
   deseo: boolean;
   accion: boolean;
-  puntos_ganados: number;
   created_at: string;
   updated_at: string;
 }

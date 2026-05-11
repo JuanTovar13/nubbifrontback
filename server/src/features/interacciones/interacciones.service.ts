@@ -1,22 +1,6 @@
-import { supabase } from "../../config/supabase";
 import { pool } from "../../config/database";
-import { getActividadByIdService } from "../actividades/actividades.service";
 import Boom from "@hapi/boom";
-import {
-  CreateInteraccionDTO,
-  Interaccion,
-  UpdateInteraccionDTO,
-} from "./interacciones.types";
-
-const calcularPuntos = (
-  flags: { atencion: boolean; interes: boolean; deseo: boolean; accion: boolean },
-  puntosActividad: number
-): number => {
-  const etapas = [flags.atencion, flags.interes, flags.deseo, flags.accion].filter(
-    Boolean
-  ).length;
-  return Math.floor((etapas / 4) * puntosActividad);
-};
+import { CreateInteraccionDTO, Interaccion, UpdateInteraccionDTO } from "./interacciones.types";
 
 export const createInteraccionService = async (
   data: CreateInteraccionDTO,
@@ -24,42 +8,23 @@ export const createInteraccionService = async (
 ): Promise<Interaccion> => {
   const { actividad_id, atencion = false, interes = false, deseo = false, accion = false } = data;
 
-  const actividad = await getActividadByIdService(actividad_id);
+  const existing = await pool.query(
+    `SELECT id FROM interacciones WHERE actividad_id = $1 AND profile_id = $2 LIMIT 1`,
+    [actividad_id, profileId]
+  );
 
-  const { data: existing } = await supabase
-    .from("interacciones")
-    .select("id")
-    .eq("actividad_id", actividad_id)
-    .eq("profile_id", profileId)
-    .single();
-
-  if (existing) {
+  if (existing.rowCount && existing.rowCount > 0) {
     throw Boom.conflict("Ya existe una interacción para esta actividad");
   }
 
-  const puntos_ganados = calcularPuntos({ atencion, interes, deseo, accion }, actividad.puntos);
+  const result = await pool.query<Interaccion>(
+    `INSERT INTO interacciones (actividad_id, profile_id, atencion, interes, deseo, accion)
+     VALUES ($1, $2, $3, $4, $5, $6)
+     RETURNING *`,
+    [actividad_id, profileId, atencion, interes, deseo, accion]
+  );
 
-  const { data: interaccion, error } = await supabase
-    .from("interacciones")
-    .insert({ actividad_id, profile_id: profileId, atencion, interes, deseo, accion, puntos_ganados })
-    .select()
-    .single();
-
-  if (error) {
-    throw Boom.internal(error.message);
-  }
-
-  if (puntos_ganados > 0) {
-    await pool.query(
-      `INSERT INTO public.puntos_balance (user_id, total)
-       VALUES ($1, $2)
-       ON CONFLICT (user_id)
-       DO UPDATE SET total = puntos_balance.total + $2`,
-      [profileId, puntos_ganados]
-    );
-  }
-
-  return interaccion;
+  return result.rows[0];
 };
 
 export const updateInteraccionService = async (
@@ -69,11 +34,7 @@ export const updateInteraccionService = async (
 ): Promise<Interaccion> => {
   const existing = await getInteraccionByIdService(id);
 
-  if (existing.profile_id !== profileId) {
-    throw Boom.forbidden("No autorizado");
-  }
-
-  const actividad = await getActividadByIdService(existing.actividad_id);
+  if (existing.profile_id !== profileId) throw Boom.forbidden("No autorizado");
 
   const updatedFlags = {
     atencion: data.atencion ?? existing.atencion,
@@ -82,72 +43,49 @@ export const updateInteraccionService = async (
     accion: data.accion ?? existing.accion,
   };
 
-  const nuevos_puntos = calcularPuntos(updatedFlags, actividad.puntos);
-  const delta = nuevos_puntos - existing.puntos_ganados;
+  const result = await pool.query<Interaccion>(
+    `UPDATE interacciones
+     SET atencion = $1, interes = $2, deseo = $3, accion = $4, updated_at = NOW()
+     WHERE id = $5
+     RETURNING *`,
+    [updatedFlags.atencion, updatedFlags.interes, updatedFlags.deseo, updatedFlags.accion, id]
+  );
 
-  const { data: updated, error } = await supabase
-    .from("interacciones")
-    .update({ ...updatedFlags, puntos_ganados: nuevos_puntos })
-    .eq("id", id)
-    .select()
-    .single();
-
-  if (error) {
-    throw Boom.internal(error.message);
-  }
-
-  if (delta !== 0) {
-    await pool.query(
-      `INSERT INTO public.puntos_balance (user_id, total)
-       VALUES ($1, $2)
-       ON CONFLICT (user_id)
-       DO UPDATE SET total = GREATEST(0, puntos_balance.total + $2)`,
-      [profileId, delta]
-    );
-  }
-
-  return updated;
+  return result.rows[0];
 };
 
 export const getInteraccionByIdService = async (id: string): Promise<Interaccion> => {
-  const { data, error } = await supabase
-    .from("interacciones")
-    .select("*")
-    .eq("id", id)
-    .single();
+  const result = await pool.query<Interaccion>(
+    `SELECT * FROM interacciones WHERE id = $1 LIMIT 1`,
+    [id]
+  );
 
-  if (error || !data) {
-    throw Boom.notFound("Interacción no encontrada");
-  }
-  return data;
+  if (result.rowCount === 0) throw Boom.notFound("Interacción no encontrada");
+  return result.rows[0];
 };
 
 export const getInteraccionesByActividadService = async (
   actividadId: string
 ): Promise<Interaccion[]> => {
-  const { data, error } = await supabase
-    .from("interacciones")
-    .select("*")
-    .eq("actividad_id", actividadId)
-    .order("created_at", { ascending: false });
+  const result = await pool.query<Interaccion>(
+    `SELECT * FROM interacciones WHERE actividad_id = $1 ORDER BY created_at DESC`,
+    [actividadId]
+  );
 
-  if (error) {
-    throw Boom.internal(error.message);
-  }
-  return data || [];
+  return result.rows;
 };
 
 export const getInteraccionesByProfileService = async (
   profileId: string
 ): Promise<Interaccion[]> => {
-  const { data, error } = await supabase
-    .from("interacciones")
-    .select("*, actividades(titulo, fecha, puntos)")
-    .eq("profile_id", profileId)
-    .order("created_at", { ascending: false });
+  const result = await pool.query<Interaccion>(
+    `SELECT i.*, act.titulo, act.fecha_inicio, act.fecha_fin
+     FROM interacciones i
+     JOIN actividades act ON act.id = i.actividad_id
+     WHERE i.profile_id = $1
+     ORDER BY i.created_at DESC`,
+    [profileId]
+  );
 
-  if (error) {
-    throw Boom.internal(error.message);
-  }
-  return data || [];
+  return result.rows;
 };

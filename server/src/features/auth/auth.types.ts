@@ -12,19 +12,24 @@ export interface LoginDTO {
   password: string;
 }
 
-export interface AuthResponse {
+export interface AuthSessionDTO {
   access_token: string;
   refresh_token: string;
+  expires_at?: number;
+}
+
+export interface AuthResponse {
   user: {
     id: string;
     email: string;
     role: UserRole;
     full_name: string;
   };
+  session: AuthSessionDTO;
 }
 
 export interface JwtPayload {
-  sub: string; // user id
+  sub: string;
   email: string;
   role: UserRole;
 }

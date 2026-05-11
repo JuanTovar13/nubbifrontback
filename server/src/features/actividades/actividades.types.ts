@@ -2,28 +2,26 @@ export interface Actividad {
   id: string;
   titulo: string;
   descripcion: string | null;
-  fecha: string;
+  fecha_inicio: string;
   ubicacion: string | null;
   qr_payload: string;
-  puntos: number;
-  activa: boolean;
-  created_by: string;
+  imagen_url: string | null;
+  creada_por: string;
   created_at: string;
 }
 
 export interface CreateActividadDTO {
   titulo: string;
   descripcion?: string;
-  fecha: string;
+  fecha_inicio: string;
   ubicacion?: string;
-  puntos?: number;
+  imagen_url?: string;
 }
 
 export interface UpdateActividadDTO {
   titulo?: string;
   descripcion?: string;
-  fecha?: string;
+  fecha_inicio?: string;
   ubicacion?: string;
-  puntos?: number;
-  activa?: boolean;
+  imagen_url?: string;
 }

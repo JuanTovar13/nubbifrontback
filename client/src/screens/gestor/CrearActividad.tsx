@@ -2,7 +2,7 @@ import { useState, useEffect } from "preact/hooks";
 import { colors, fonts } from "../../tokens";
 import { TopBar } from "../../components/PhoneFrame";
 import { BottomNav, gestorNav } from "../../components/BottomNav";
-import { createActividad, getActividades, type Actividad } from "../../api/actividades";
+import { useActividades, useCreateActividad } from "../../providers/ActividadesProvider";
 
 const formatFecha = (iso: string) => {
   const d = new Date(iso);
@@ -25,36 +25,27 @@ const inputStyle = {
 export const CrearActividadScreen = () => {
   const [tab, setTab] = useState<"crear" | "historial">("crear");
 
-  // form fields
   const [titulo, setTitulo] = useState("");
   const [desc, setDesc] = useState("");
   const [fecha, setFecha] = useState("");
   const [lugar, setLugar] = useState("");
-  const [loading, setLoading] = useState(false);
   const [exito, setExito] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  // historial
-  const [actividades, setActividades] = useState<Actividad[]>([]);
-  const [loadingHist, setLoadingHist] = useState(false);
+  const { crear, loading, error } = useCreateActividad();
+  const { actividades, loading: loadingHist, refetch } = useActividades();
 
   useEffect(() => {
-    if (tab === "historial") {
-      setLoadingHist(true);
-      getActividades().then(setActividades).catch(console.error).finally(() => setLoadingHist(false));
-    }
+    if (tab === "historial") refetch();
   }, [tab]);
 
   const handleCrear = async (e: Event) => {
     e.preventDefault();
-    setError(null);
     setExito(false);
-    setLoading(true);
     try {
-      await createActividad({
+      await crear({
         titulo,
         descripcion: desc || undefined,
-        fecha: new Date(fecha).toISOString(),
+        fecha_inicio: new Date(fecha).toISOString(),
         ubicacion: lugar || undefined,
       });
       setExito(true);
@@ -62,10 +53,8 @@ export const CrearActividadScreen = () => {
       setDesc("");
       setFecha("");
       setLugar("");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Error al crear la actividad");
-    } finally {
-      setLoading(false);
+    } catch {
+      // error ya está en el estado del hook
     }
   };
 
@@ -74,7 +63,6 @@ export const CrearActividadScreen = () => {
       <TopBar />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
-        {/* Header */}
         <div style={{ background: colors.pink, padding: "14px 20px", flexShrink: 0 }}>
           <div style={{ fontSize: 17, fontWeight: 800, color: "white", fontFamily: fonts.body }}>
             Actividades
@@ -84,29 +72,19 @@ export const CrearActividadScreen = () => {
           </div>
 
           <div style={{
-            display: "flex",
-            background: "rgba(255,255,255,0.2)",
-            borderRadius: 20,
-            padding: 3,
-            marginTop: 10,
-            gap: 2,
+            display: "flex", background: "rgba(255,255,255,0.2)", borderRadius: 20,
+            padding: 3, marginTop: 10, gap: 2,
           }}>
             {(["crear", "historial"] as const).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
                 style={{
-                  flex: 1,
-                  padding: "6px 0",
-                  borderRadius: 16,
+                  flex: 1, padding: "6px 0", borderRadius: 16,
                   background: tab === t ? "white" : "transparent",
                   color: tab === t ? colors.pink : "white",
-                  border: "none",
-                  cursor: "pointer",
-                  fontWeight: 700,
-                  fontSize: 12,
-                  fontFamily: fonts.body,
-                  transition: "all 0.2s",
+                  border: "none", cursor: "pointer", fontWeight: 700,
+                  fontSize: 12, fontFamily: fonts.body, transition: "all 0.2s",
                 }}
               >
                 {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -126,16 +104,11 @@ export const CrearActividadScreen = () => {
                 required
                 style={inputStyle}
               />
-
               <textarea
                 placeholder="Descripción de la actividad"
                 value={desc}
                 onInput={(e) => setDesc((e.target as HTMLTextAreaElement).value)}
-                style={{
-                  ...inputStyle,
-                  resize: "none",
-                  height: 70,
-                }}
+                style={{ ...inputStyle, resize: "none", height: 70 }}
               />
 
               <div style={{ display: "flex", alignItems: "center", gap: 8, background: "white", borderRadius: 10, border: `1px solid ${colors.gray300}`, padding: "8px 12px" }}>
@@ -145,15 +118,7 @@ export const CrearActividadScreen = () => {
                   value={fecha}
                   onInput={(e) => setFecha((e.target as HTMLInputElement).value)}
                   required
-                  style={{
-                    flex: 1,
-                    border: "none",
-                    outline: "none",
-                    fontSize: 12,
-                    color: fecha ? colors.text : colors.textLight,
-                    fontFamily: fonts.body,
-                    background: "transparent",
-                  }}
+                  style={{ flex: 1, border: "none", outline: "none", fontSize: 12, color: fecha ? colors.text : colors.textLight, fontFamily: fonts.body, background: "transparent" }}
                 />
               </div>
 
@@ -163,15 +128,7 @@ export const CrearActividadScreen = () => {
                   placeholder="Lugar"
                   value={lugar}
                   onInput={(e) => setLugar((e.target as HTMLInputElement).value)}
-                  style={{
-                    flex: 1,
-                    border: "none",
-                    outline: "none",
-                    fontSize: 12,
-                    color: colors.text,
-                    fontFamily: fonts.body,
-                    background: "transparent",
-                  }}
+                  style={{ flex: 1, border: "none", outline: "none", fontSize: 12, color: colors.text, fontFamily: fonts.body, background: "transparent" }}
                 />
               </div>
 
@@ -190,17 +147,11 @@ export const CrearActividadScreen = () => {
                 type="submit"
                 disabled={loading}
                 style={{
-                  marginTop: 4,
-                  padding: 13,
+                  marginTop: 4, padding: 13,
                   background: loading ? colors.gray300 : colors.pinkDark,
-                  border: "none",
-                  borderRadius: 12,
-                  color: "white",
-                  fontWeight: 700,
-                  fontSize: 14,
-                  cursor: loading ? "not-allowed" : "pointer",
-                  fontFamily: fonts.body,
-                  boxShadow: loading ? "none" : `0 4px 14px ${colors.pink}50`,
+                  border: "none", borderRadius: 12, color: "white", fontWeight: 700,
+                  fontSize: 14, cursor: loading ? "not-allowed" : "pointer",
+                  fontFamily: fonts.body, boxShadow: loading ? "none" : `0 4px 14px ${colors.pink}50`,
                   transition: "all 0.2s",
                 }}
               >
@@ -223,24 +174,13 @@ export const CrearActividadScreen = () => {
               )}
               {actividades.map((act) => (
                 <div key={act.id} style={{
-                  background: "white",
-                  borderRadius: 12,
-                  padding: "12px 14px",
-                  display: "flex",
-                  gap: 10,
-                  alignItems: "center",
+                  background: "white", borderRadius: 12, padding: "12px 14px",
+                  display: "flex", gap: 10, alignItems: "center",
                   boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
                 }}>
                   <div style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 10,
-                    background: colors.pink + "20",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 18,
-                    flexShrink: 0,
+                    width: 36, height: 36, borderRadius: 10, background: colors.pink + "20",
+                    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0,
                   }}>
                     🎯
                   </div>
@@ -249,16 +189,8 @@ export const CrearActividadScreen = () => {
                       {act.titulo}
                     </div>
                     <div style={{ fontSize: 10, color: colors.textLight, fontFamily: fonts.body }}>
-                      {formatFecha(act.fecha)} · {act.activa ? "Activa" : "Finalizada"}
+                      {formatFecha(act.fecha_inicio)}
                     </div>
-                  </div>
-                  <div style={{
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: act.activa ? colors.green : colors.gray500,
-                    fontFamily: fonts.body,
-                  }}>
-                    {act.puntos} pts
                   </div>
                 </div>
               ))}

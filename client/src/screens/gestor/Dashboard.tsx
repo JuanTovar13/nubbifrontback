@@ -1,19 +1,12 @@
-import { useState, useEffect } from "preact/hooks";
 import { colors, fonts } from "../../tokens";
 import { TopBar } from "../../components/PhoneFrame";
 import { BottomNav, gestorNav } from "../../components/BottomNav";
-import { getActividades } from "../../api/actividades";
-import { getInteraccionesByActividad, type Interaccion } from "../../api/interacciones";
+import { useActividades } from "../../providers/ActividadesProvider";
+import { useInteraccionesAgregadas, type Interaccion } from "../../providers/InteraccionesProvider";
 
-interface AidaData {
-  label: string;
-  valor: number;
-  color: string;
-}
-
-const calcAida = (interacciones: Interaccion[]): AidaData[] => {
+const calcAida = (interacciones: Interaccion[]) => {
   const total = interacciones.length;
-  const pct = (count: number) => total === 0 ? 0 : Math.round((count / total) * 100);
+  const pct = (n: number) => total === 0 ? 0 : Math.round((n / total) * 100);
   return [
     { label: "Atención", valor: pct(interacciones.filter((i) => i.atencion).length), color: colors.blue },
     { label: "Interés",  valor: pct(interacciones.filter((i) => i.interes).length),  color: colors.orange },
@@ -23,64 +16,25 @@ const calcAida = (interacciones: Interaccion[]): AidaData[] => {
 };
 
 export const DashboardScreen = () => {
-  const [aida, setAida] = useState<AidaData[]>([
-    { label: "Atención", valor: 0, color: colors.blue },
-    { label: "Interés",  valor: 0, color: colors.orange },
-    { label: "Deseo",    valor: 0, color: colors.pink },
-    { label: "Acción",   valor: 0, color: colors.teal },
-  ]);
-  const [totalActividades, setTotalActividades] = useState(0);
-  const [totalInteracciones, setTotalInteracciones] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const { actividades, loading: loadingActs } = useActividades();
+  const actividadIds = actividades.map((a) => a.id);
+  const { interacciones, loading: loadingInts } = useInteraccionesAgregadas(actividadIds);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const acts = await getActividades();
-        setTotalActividades(acts.length);
-        if (acts.length === 0) { setLoading(false); return; }
-
-        const allInteracciones: Interaccion[] = [];
-        await Promise.all(
-          acts.map((act) =>
-            getInteraccionesByActividad(act.id)
-              .then((ints) => allInteracciones.push(...ints))
-              .catch(() => {})
-          )
-        );
-        setTotalInteracciones(allInteracciones.length);
-        setAida(calcAida(allInteracciones));
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  const loading = loadingActs || loadingInts;
+  const aida = calcAida(interacciones);
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", height: "100vh" }}>
       <TopBar />
       <div style={{
-        flex: 1,
-        overflowY: "auto",
-        background: colors.offWhite,
-        padding: "12px 14px 64px",
-        display: "flex",
-        flexDirection: "column",
-        gap: 12,
+        flex: 1, overflowY: "auto", background: colors.offWhite,
+        padding: "12px 14px 64px", display: "flex", flexDirection: "column", gap: 12,
       }}>
 
-        {/* Header */}
         <div style={{
           background: `linear-gradient(135deg, ${colors.orange}, ${colors.orangeLight})`,
-          borderRadius: 16,
-          padding: "14px 16px",
-          color: "white",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
+          borderRadius: 16, padding: "14px 16px", color: "white",
+          display: "flex", justifyContent: "space-between", alignItems: "flex-start",
         }}>
           <div>
             <div style={{ fontWeight: 800, fontSize: 17, fontFamily: fonts.body }}>Dashboard</div>
@@ -95,38 +49,22 @@ export const DashboardScreen = () => {
           )}
         </div>
 
-        {/* Métricas */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           {[
-            { icon: "🎯", valor: String(totalActividades),        label: "Actividades",     color: colors.blue,   bg: colors.blueLight       },
-            { icon: "💬", valor: String(totalInteracciones),      label: "Interacciones",   color: colors.teal,   bg: colors.tealLight       },
+            { icon: "🎯", valor: String(actividades.length),      label: "Actividades",     color: colors.blue,   bg: colors.blueLight       },
+            { icon: "💬", valor: String(interacciones.length),    label: "Interacciones",   color: colors.teal,   bg: colors.tealLight       },
             { icon: "📊", valor: `${aida[3]?.valor ?? 0}%`,      label: "Tasa de acción",  color: colors.orange, bg: colors.orangeVeryLight },
             { icon: "⭐", valor: `${aida[1]?.valor ?? 0}%`,      label: "Tasa de interés", color: colors.pink,   bg: "#FFF0F3"              },
-          ].map((metrica, i) => (
-            <div key={i} style={{
-              background: metrica.bg,
-              borderRadius: 14,
-              padding: "14px 12px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-            }}>
-              <div style={{ fontSize: 22, marginBottom: 6 }}>{metrica.icon}</div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: metrica.color, fontFamily: fonts.body }}>
-                {metrica.valor}
-              </div>
-              <div style={{ fontSize: 10, color: colors.textLight, marginTop: 2, fontFamily: fonts.body }}>
-                {metrica.label}
-              </div>
+          ].map((m, i) => (
+            <div key={i} style={{ background: m.bg, borderRadius: 14, padding: "14px 12px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+              <div style={{ fontSize: 22, marginBottom: 6 }}>{m.icon}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: m.color, fontFamily: fonts.body }}>{m.valor}</div>
+              <div style={{ fontSize: 10, color: colors.textLight, marginTop: 2, fontFamily: fonts.body }}>{m.label}</div>
             </div>
           ))}
         </div>
 
-        {/* Modelo AIDA */}
-        <div style={{
-          background: "white",
-          borderRadius: 16,
-          padding: "14px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-        }}>
+        <div style={{ background: "white", borderRadius: 16, padding: "14px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
           <div style={{ fontWeight: 800, fontSize: 14, color: colors.text, fontFamily: fonts.body, marginBottom: 14 }}>
             Modelo AIDA
           </div>
@@ -144,9 +82,7 @@ export const DashboardScreen = () => {
                 </div>
                 <div style={{ height: 8, background: colors.gray200, borderRadius: 4 }}>
                   <div style={{
-                    width: `${etapa.valor}%`,
-                    height: "100%",
-                    borderRadius: 4,
+                    width: `${etapa.valor}%`, height: "100%", borderRadius: 4,
                     background: `linear-gradient(90deg, ${etapa.color}80, ${etapa.color})`,
                     transition: "width 0.6s ease",
                   }} />
@@ -155,7 +91,7 @@ export const DashboardScreen = () => {
             ))}
           </div>
 
-          {!loading && totalInteracciones === 0 && (
+          {!loading && interacciones.length === 0 && (
             <div style={{ marginTop: 14, fontSize: 11, color: colors.textLight, fontFamily: fonts.body, textAlign: "center" }}>
               Aún no hay interacciones registradas.
             </div>

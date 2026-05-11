@@ -1,9 +1,9 @@
-import { useState, useEffect } from "preact/hooks";
+import { useState } from "preact/hooks";
 import { colors, fonts } from "../../tokens";
 import { TopBar } from "../../components/PhoneFrame";
 import { BottomNav, familiaNav } from "../../components/BottomNav";
-import { getActividades, type Actividad } from "../../api/actividades";
-import { createInteraccion, updateInteraccion, getMiHistorial, type InteraccionConActividad } from "../../api/interacciones";
+import { useActividades, type Actividad } from "../../providers/ActividadesProvider";
+import { useMiHistorialInteracciones, type InteraccionConActividad } from "../../providers/InteraccionesProvider";
 
 const formatFecha = (iso: string) => {
   const d = new Date(iso);
@@ -89,8 +89,8 @@ const ActividadCard = ({
           <div style={{ display: "flex", gap: 14 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0, minWidth: 90 }}>
               {[
-                { icon: "📅", value: formatFecha(act.fecha) },
-                { icon: "🕐", value: formatHora(act.fecha) },
+                { icon: "📅", value: formatFecha(act.fecha_inicio) },
+                { icon: "🕐", value: formatHora(act.fecha_inicio) },
                 { icon: "📍", value: act.ubicacion ?? "Por definir" },
               ].map(({ icon, value }) => (
                 <div key={icon} style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
@@ -141,73 +141,14 @@ const ActividadCard = ({
 };
 
 export const ActividadesScreen = () => {
-  const [actividades, setActividades] = useState<Actividad[]>([]);
-  const [historial, setHistorial] = useState<Map<string, InteraccionConActividad>>(new Map());
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([getActividades(true), getMiHistorial()]).then(([acts, hist]) => {
-      setActividades(acts);
-      const map = new Map<string, InteraccionConActividad>();
-      hist.forEach((h) => map.set(h.actividad_id, h));
-      setHistorial(map);
-    }).catch(console.error).finally(() => setLoading(false));
-  }, []);
-
-  const handleExpand = async (actividadId: string) => {
-    const existing = historial.get(actividadId);
-    try {
-      if (!existing) {
-        const nueva = await createInteraccion({ actividad_id: actividadId, interes: true });
-        setHistorial((prev) => {
-          const next = new Map(prev);
-          next.set(actividadId, { ...nueva, actividades: { titulo: "", fecha: "", puntos: 0 } });
-          return next;
-        });
-      } else if (!existing.interes) {
-        const updated = await updateInteraccion(existing.id, { interes: true });
-        setHistorial((prev) => {
-          const next = new Map(prev);
-          next.set(actividadId, { ...existing, ...updated });
-          return next;
-        });
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const handleParticipar = async (actividadId: string) => {
-    const existing = historial.get(actividadId);
-    try {
-      if (!existing) {
-        const nueva = await createInteraccion({ actividad_id: actividadId, deseo: true });
-        setHistorial((prev) => {
-          const next = new Map(prev);
-          next.set(actividadId, { ...nueva, actividades: { titulo: "", fecha: "", puntos: 0 } });
-          return next;
-        });
-      } else if (!existing.deseo) {
-        const updated = await updateInteraccion(existing.id, { deseo: true });
-        setHistorial((prev) => {
-          const next = new Map(prev);
-          next.set(actividadId, { ...existing, ...updated });
-          return next;
-        });
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  const { actividades, loading } = useActividades(true);
+  const { historial, marcarInteres, marcarDeseo } = useMiHistorialInteracciones();
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", overflow: "hidden", height: "100vh" }}>
+    <div style={{ display: "flex", flexDirection: "column", overflow: "hidden", height: "100vh", width:"100%" }}>
       <TopBar />
       <div style={{ flex: 1, background: colors.offWhite, overflowY: "auto", paddingBottom: 64 }}>
-        <div style={{
-          background: `linear-gradient(135deg, ${colors.pink})`,
-          padding: "16px 20px 20px",
-        }}>
+        <div style={{ background: `linear-gradient(135deg, ${colors.pink})`, padding: "16px 20px 20px" }}>
           <div style={{ fontSize: 17, fontWeight: 800, color: "white", fontFamily: fonts.body }}>
             Actividades
           </div>
@@ -232,8 +173,8 @@ export const ActividadesScreen = () => {
               key={act.id}
               act={act}
               interaccion={historial.get(act.id)}
-              onExpand={() => handleExpand(act.id)}
-              onParticipar={() => handleParticipar(act.id)}
+              onExpand={() => marcarInteres(act.id).catch(console.error)}
+              onParticipar={() => marcarDeseo(act.id).catch(console.error)}
             />
           ))}
         </div>

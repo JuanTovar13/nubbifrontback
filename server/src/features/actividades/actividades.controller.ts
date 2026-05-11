@@ -8,7 +8,7 @@ import {
   listActividadesService,
   updateActividadService,
 } from "./actividades.service";
-
+console.log("CREATE CONTROLLER HIT");
 const getErrorMessage = (error: unknown, defaultMessage: string) => {
   if (error instanceof Error) return error.message;
   return defaultMessage;

@@ -1,8 +1,8 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import type { JSX } from "preact";
 
-import { AuthProvider } from "./context/AuthContext";
-import { useAuth } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./providers/AuthProvider";
+import { RoleSelector }          from "./screens/RoleSelector";
 import { LoginScreen }           from "./screens/Login";
 import { HomeFamiliaScreen }     from "./screens/familia/HomeFamilia";
 import { ActividadesScreen }     from "./screens/familia/Actividades";
@@ -17,24 +17,25 @@ import { ComunidadGestorScreen } from "./screens/gestor/ComunidadGestor";
 import type { UserRole } from "./types";
 
 const PrivateRoute = ({ children, role }: { children: JSX.Element; role?: UserRole }) => {
-  const { user, isLoading } = useAuth();
+  const { auth, isLoading } = useAuth();
   if (isLoading) return null;
-  if (!user) return <Navigate to="/" replace />;
-  if (role && user.role !== role) return <Navigate to={`/${user.role}`} replace />;
+  if (!auth) return <Navigate to="/" replace />;
+  if (role && auth.user.role !== role) return <Navigate to={`/${auth.user.role}`} replace />;
   return children;
 };
 
 const PublicRoute = ({ children }: { children: JSX.Element }) => {
-  const { user, isLoading } = useAuth();
+  const { auth, isLoading } = useAuth();
   if (isLoading) return null;
-  if (user) return <Navigate to={`/${user.role}`} replace />;
+  if (auth) return <Navigate to={`/${auth.user.role}`} replace />;
   return children;
 };
 
 const AppRoutes = () => (
-  <div style={{ display: "flex", minHeight: "100dvh" }}>
+  <div style={{ display: "flex", minHeight: "100vh", width: "100%", justifyContent:"center"}}>
     <Routes>
-      <Route path="/" element={<PublicRoute><LoginScreen /></PublicRoute>} />
+      <Route path="/"      element={<PublicRoute><RoleSelector /></PublicRoute>} />
+      <Route path="/login" element={<PublicRoute><LoginScreen /></PublicRoute>} />
 
       <Route path="/familia"             element={<PrivateRoute role="familia"><HomeFamiliaScreen /></PrivateRoute>} />
       <Route path="/familia/actividades" element={<PrivateRoute role="familia"><ActividadesScreen /></PrivateRoute>} />

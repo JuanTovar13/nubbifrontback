@@ -1,40 +1,28 @@
-import { useState, useEffect } from "preact/hooks";
-import { useNavigate } from "react-router-dom";
 import { NubbiOwl } from "../../components/NubbiLogo";
 import { TopBar } from "../../components/PhoneFrame";
 import { BottomNav, familiaNav } from "../../components/BottomNav";
 import { colors, fonts } from "../../tokens";
-import { useAuth } from "../../context/AuthContext";
-import { getBalance } from "../../api/asistencias";
+import { useAuth } from "../../providers/AuthProvider";
+import { LogoutButton } from "../../components/LogoutButton";
 
 export const Perfil = () => {
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
-  const [puntos, setPuntos] = useState<number | null>(null);
-
-  useEffect(() => {
-    getBalance().then((b) => setPuntos(b.total)).catch(console.error);
-  }, []);
-
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
+  const { auth } = useAuth();
+  
+  const user = auth?.user;
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", height: "100vh" }}>
       <TopBar />
-      <div style={{ flex: 1, overflowY: "auto", background: colors.offWhite, paddingBottom: 64 }}>
+      <div style={{ flex: 1,display:"flex", flexDirection: "column", overflowY: "auto", background: colors.offWhite, paddingBottom: 64,alignItems:"center" }}>
 
         {/* Banner */}
         <div style={{
-          background: `linear-gradient(135deg, ${colors.orange} 0%, ${colors.orangeLight} 100%)`,
-          padding: "20px 20px 24px",
+          background: colors.orange,
+          padding: "40px 40px 40px",
           position: "relative",
           overflow: "hidden",
+          width:"100%"
         }}>
-          <div style={{ position: "absolute", right: -10, bottom: -10, opacity: 0.15, fontSize: 80 }}>⭐</div>
-
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div style={{
               width: 56,
@@ -62,50 +50,11 @@ export const Perfil = () => {
             </div>
           </div>
 
-          {/* Puntos badge */}
-          {puntos !== null && (
-            <div style={{
-              marginTop: 14,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              background: "rgba(255,255,255,0.25)",
-              borderRadius: 20,
-              padding: "6px 14px",
-            }}>
-              <span style={{ fontSize: 14 }}>⭐</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "white", fontFamily: fonts.body }}>
-                {puntos} puntos acumulados
-              </span>
-            </div>
-          )}
+          
         </div>
 
         {/* Acciones */}
-        <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
-          <button
-            onClick={handleLogout}
-            style={{
-              marginTop: 8,
-              width: "100%",
-              padding: "13px 0",
-              background: "white",
-              border: `2px solid ${colors.gray300}`,
-              borderRadius: 12,
-              color: colors.gray700,
-              fontWeight: 700,
-              fontSize: 13,
-              cursor: "pointer",
-              fontFamily: fonts.body,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-            }}
-          >
-            🚪 Cerrar sesión
-          </button>
-        </div>
+        <LogoutButton/>
 
       </div>
       <BottomNav items={familiaNav} />

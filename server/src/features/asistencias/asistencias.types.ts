@@ -1,8 +1,9 @@
 export interface Asistencia {
   id: string;
-  user_id: string;
+  profile_id: string;
   actividad_id: string;
-  created_at: string;
+  qr_payload_usado: string;
+  escaneado_at: string;
 }
 
 export interface ScanQRDTO {
@@ -11,11 +12,4 @@ export interface ScanQRDTO {
 
 export interface ScanResult {
   asistencia: Asistencia;
-  puntos_ganados: number;
-  puntos_total: number;
-}
-
-export interface PuntosBalance {
-  user_id: string;
-  total: number;
 }
