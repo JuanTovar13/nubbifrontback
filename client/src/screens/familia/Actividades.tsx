@@ -8,40 +8,40 @@ import { useMiHistorialInteracciones, type InteraccionConActividad } from "../..
 const formatFecha = (iso: string) => {// Función para formatear una fecha en formato ISO a un formato más legible, que recibe una cadena de texto con la fecha en formato ISO y devuelve una cadena de texto con la fecha formateada en el formato "día mes" (por ejemplo, "12 mar")
   const d = new Date(iso);// Crea un objeto Date a partir de la cadena de texto con la fecha en formato ISO, lo que permite manipular y formatear la fecha de manera más fácil utilizando los métodos del objeto Date
   return d.toLocaleDateString("es-CO", { day: "numeric", month: "short" });// Devuelve una cadena de texto con la fecha formateada en el formato "día mes" (por ejemplo, "12 mar"), utilizando el método toLocaleDateString del objeto Date para formatear la fecha según la configuración regional de Colombia (es-CO) y especificando que se muestre el día como un número y el mes como una abreviatura de tres letras
+};// Puedes ajustar el formato de fecha según tus necesidades o preferencias, por ejemplo, si quieres mostrar el año también, podrías agregar year: "numeric" al objeto de opciones en toLocaleDateString
+
+const formatHora = (iso: string) => {// Función para formatear una hora en formato ISO a un formato más legible, que recibe una cadena de texto con la fecha y hora en formato ISO y devuelve una cadena de texto con la hora formateada en el formato "hora:minutos" (por ejemplo, "14:30")
+  const d = new Date(iso);// Crea un objeto Date a partir de la cadena de texto con la fecha y hora en formato ISO, lo que permite manipular y formatear la hora de manera más fácil utilizando los métodos del objeto Date
+  return d.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });// Devuelve una cadena de texto con la hora formateada en el formato "hora:minutos" (por ejemplo, "14:30"), utilizando el método toLocaleTimeString del objeto Date para formatear la hora según la configuración regional de Colombia (es-CO) y especificando que se muestre la hora con dos dígitos y los minutos con dos dígitos
 };
 
-const formatHora = (iso: string) => {
-  const d = new Date(iso);
-  return d.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
-};
-
-const ActividadCard = ({
-  act,
-  interaccion,
-  onExpand,
-  onParticipar,
+const ActividadCard = ({// Componente para mostrar la información de una actividad en una tarjeta, que recibe la actividad a mostrar, la interacción del usuario con esa actividad (si existe), y las funciones para manejar la expansión de la tarjeta y para manejar la participación del usuario en la actividad
+  act,// La actividad a mostrar en la tarjeta, que es un objeto con la información de la actividad obtenida de la API, incluyendo el título, la descripción, la fecha de inicio, la ubicación, etc.
+  interaccion,// La interacción del usuario con esa actividad, que es un objeto con la información de cómo ha interactuado el usuario con esa actividad (si existe), incluyendo si ha mostrado interés o si desea participar, lo que permite mostrar esta información en la tarjeta para que el usuario pueda ver su estado de interacción con la actividad
+  onExpand,// La función para manejar la expansión de la tarjeta, que se llama cuando el usuario hace clic en la tarjeta para expandirla y mostrar más información sobre la actividad, lo que permite mostrar u ocultar la información adicional de la actividad según el estado de expansión de la tarjeta
+  onParticipar,// La función para manejar la participación del usuario en la actividad, que se llama cuando el usuario hace clic en el botón de participar en la tarjeta, lo que permite marcar la actividad como deseada o no deseada para el usuario y actualizar la interfaz de usuario en consecuencia para mostrar el estado de participación del usuario en la actividad
 }: {
-  act: Actividad;
-  interaccion: InteraccionConActividad | undefined;
-  onExpand: () => void;
-  onParticipar: () => void;
+  act: Actividad;// La actividad a mostrar en la tarjeta, que es un objeto con la información de la actividad obtenida de la API, incluyendo el título, la descripción, la fecha de inicio, la ubicación, etc.
+  interaccion: InteraccionConActividad | undefined;// La interacción del usuario con esa actividad, que es un objeto con la información de cómo ha interactuado el usuario con esa actividad (si existe), incluyendo si ha mostrado interés o si desea participar, lo que permite mostrar esta información en la tarjeta para que el usuario pueda ver su estado de interacción con la actividad
+  onExpand: () => void;// La función para manejar la expansión de la tarjeta, que se llama cuando el usuario hace clic en la tarjeta para expandirla y mostrar más información sobre la actividad, lo que permite mostrar u ocultar la información adicional de la actividad según el estado de expansión de la tarjeta
+  onParticipar: () => void;// La función para manejar la participación del usuario en la actividad, que se llama cuando el usuario hace clic en el botón de participar en la tarjeta, lo que permite marcar la actividad como deseada o no deseada para el usuario y actualizar la interfaz de usuario en consecuencia para mostrar el estado de participación del usuario en la actividad
 }) => {
-  const [abierta, setAbierta] = useState(false);
+  const [abierta, setAbierta] = useState(false);// Estado local para controlar si la tarjeta está expandida o no, lo que permite mostrar u ocultar la información adicional de la actividad según el estado de expansión de la tarjeta
 
-  const handleExpand = () => {
-    const siguiente = !abierta;
-    setAbierta(siguiente);
-    if (siguiente) onExpand();
+  const handleExpand = () => {// Función para manejar el clic en la tarjeta para expandirla o contraerla, que invierte el estado de expansión de la tarjeta y llama a la función onExpand si la tarjeta se está expandiendo, lo que permite mostrar u ocultar la información adicional de la actividad según el estado de expansión de la tarjeta y realizar cualquier acción adicional que se necesite cuando la tarjeta se expande (por ejemplo, cargar información adicional de la actividad desde la API)
+    const siguiente = !abierta;// Calcula el siguiente estado de expansión de la tarjeta invirtiendo el estado actual, lo que permite cambiar entre expandida y contraída cada vez que se hace clic en la tarjeta
+    setAbierta(siguiente);// Actualiza el estado de expansión de la tarjeta con el siguiente estado calculado, lo que permite mostrar u ocultar la información adicional de la actividad según el estado de expansión de la tarjeta
+    if (siguiente) onExpand();// Si el siguiente estado es expandida (true), llama a la función onExpand para realizar cualquier acción adicional que se necesite cuando la tarjeta se expande (por ejemplo, cargar información adicional de la actividad desde la API)
   };
 
-  return (
-    <div style={{
+  return (// El componente devuelve un elemento JSX que representa la tarjeta de la actividad, con estilos para mostrar la información de la actividad de manera clara y atractiva, y con interactividad para expandir la tarjeta y para participar en la actividad, lo que permite a los usuarios ver las actividades disponibles, obtener más información sobre ellas y marcar su interés o participación en ellas de manera fácil e intuitiva a través de la interfaz de usuario de la tarjeta
+    <div style={{// Estilos para la tarjeta de la actividad, que incluyen un fondo blanco, bordes redondeados, sombra para dar profundidad, y estilos para el contenido de la tarjeta para mostrar la información de la actividad de manera clara y atractiva
       background: "white",
       borderRadius: 16,
       overflow: "hidden",
       boxShadow: "0 2px 10px rgba(0,0,0,0.07)",
     }}>
-      <button
+      <button // El botón para expandir la tarjeta, que ocupa todo el ancho de la tarjeta y tiene estilos para mostrar el título de la actividad y un ícono de flecha que indica si la tarjeta está expandida o no, lo que permite a los usuarios hacer clic en cualquier parte del encabezado de la tarjeta para expandirla o contraerla y ver más información sobre la actividad
         onClick={handleExpand}
         style={{
           width: "100%",
@@ -82,14 +82,14 @@ const ActividadCard = ({
         </span>
       </button>
 
-      {abierta && (
+      {abierta && ( // Si la tarjeta está expandida, se muestra la información adicional de la actividad, incluyendo la fecha, hora, ubicación, descripción y el botón para participar en la actividad, lo que permite a los usuarios obtener más información sobre la actividad y marcar su interés o participación en ella de manera fácil e intuitiva a través de la interfaz de usuario de la tarjeta
         <div style={{ padding: "0 16px 16px" }}>
           <div style={{ height: 1, background: colors.gray200, marginBottom: 14 }} />
 
           <div style={{ display: "flex", gap: 14 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0, minWidth: 90 }}>
               {[
-                { icon: "📅", value: formatFecha(act.fecha_inicio) },
+                { icon: "📅", value: formatFecha(act.fecha_inicio) }, // Muestra la fecha de inicio de la actividad con un ícono de calendario, utilizando la función formatFecha para formatear la fecha en un formato más legible, lo que permite a los usuarios ver fácilmente cuándo se llevará a cabo la actividad
                 { icon: "🕐", value: formatHora(act.fecha_inicio) },
                 { icon: "📍", value: act.ubicacion ?? "Por definir" },
               ].map(({ icon, value }) => (
@@ -140,17 +140,17 @@ const ActividadCard = ({
   );
 };
 
-export const ActividadesScreen = () => {
-  const { actividades, loading } = useActividades(true);
-  const { historial, marcarInteres, marcarDeseo } = useMiHistorialInteracciones();
+export const ActividadesScreen = () => {// Componente principal para mostrar la pantalla de actividades, que utiliza el hook useActividades para obtener la lista de actividades desde la API, y el hook useMiHistorialInteracciones para obtener el historial de interacciones del usuario con las actividades, y muestra una lista de tarjetas de actividades utilizando el componente ActividadCard, junto con la barra superior y la barra de navegación inferior para proporcionar una experiencia de usuario completa y coherente en la pantalla de actividades
+  const { actividades, loading } = useActividades(true);// Utiliza el hook useActividades para obtener la lista de actividades desde la API, pasando true para indicar que solo se deben obtener las actividades disponibles para la familia, lo que permite mostrar esta información en la pantalla de actividades para que los usuarios puedan ver las actividades disponibles para su familia y participar en ellas
+  const { historial, marcarInteres, marcarDeseo } = useMiHistorialInteracciones();// Utiliza el hook useMiHistorialInteracciones para obtener el historial de interacciones del usuario con las actividades, lo que permite mostrar esta información en la pantalla de actividades para que los usuarios puedan ver cómo han interactuado con cada actividad (si han mostrado interés o si desean participar) y para proporcionar las funciones marcarInteres y marcarDeseo para que los usuarios puedan marcar su interés o participación en las actividades directamente desde la pantalla de actividades, lo que mejora la experiencia de usuario al permitirles interactuar con las actividades de manera fácil e intuitiva a través de la interfaz de usuario de la pantalla de actividades
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", overflow: "hidden", height: "100vh", width:"100%" }}>
-      <TopBar />
-      <div style={{ flex: 1, background: colors.offWhite, overflowY: "auto", paddingBottom: 64 }}>
-        <div style={{ background: `linear-gradient(135deg, ${colors.pink})`, padding: "16px 20px 20px" }}>
-          <div style={{ fontSize: 17, fontWeight: 800, color: "white", fontFamily: fonts.body }}>
-            Actividades
+  return (// El componente principal devuelve un elemento JSX que representa la pantalla de actividades, con una estructura de diseño que incluye una barra superior, una sección principal para mostrar la lista de actividades y una barra de navegación inferior, lo que proporciona una experiencia de usuario completa y coherente en la pantalla de actividades para que los usuarios puedan ver las actividades disponibles para su familia, obtener más información sobre ellas y marcar su interés o participación en ellas de manera fácil e intuitiva a través de la interfaz de usuario de la pantalla de actividades
+    <div style={{ display: "flex", flexDirection: "column", overflow: "hidden", height: "100vh", width:"100%" }}>// Estilos para el contenedor principal de la pantalla de actividades, que utiliza flexbox para organizar los elementos en una columna, con overflow hidden para evitar que el contenido se desborde fuera del contenedor, y con height 100vh para ocupar toda la altura de la ventana del navegador y width 100% para ocupar todo el ancho disponible, lo que proporciona una estructura de diseño sólida y adaptable para la pantalla de actividades
+      <TopBar />// El componente TopBar para mostrar la barra superior de la pantalla, que proporciona una apariencia consistente con otras pantallas de la aplicación y puede incluir elementos como el título de la pantalla, un botón de menú o un botón de retroceso, lo que mejora la experiencia de usuario al proporcionar una navegación clara y coherente en la aplicación
+      <div style={{ flex: 1, background: colors.offWhite, overflowY: "auto", paddingBottom: 64 }}>// Contenedor para la sección principal de la pantalla de actividades, que utiliza flex 1 para ocupar el espacio restante entre la barra superior y la barra de navegación inferior, con un fondo de color offWhite para diferenciarlo visualmente, con overflowY auto para permitir el desplazamiento vertical si el contenido excede la altura del contenedor, y con paddingBottom 64 para evitar que el contenido quede oculto detrás de la barra de navegación inferior cuando se desplaza hasta el final, lo que proporciona una experiencia de usuario fluida y cómoda al navegar por la lista de actividades en la pantalla de actividades
+        <div style={{ background: `linear-gradient(135deg, ${colors.pink})`, padding: "16px 20px 20px" }}>// Contenedor para el encabezado de la pantalla de actividades, que utiliza un fondo con un degradado lineal para darle un aspecto atractivo y distintivo, con padding para proporcionar espacio alrededor del contenido del encabezado, lo que mejora la experiencia de usuario al proporcionar una introducción visualmente atractiva a la pantalla de actividades y al destacar el título y la descripción de la pantalla de actividades
+          <div style={{ fontSize: 17, fontWeight: 800, color: "white", fontFamily: fonts.body }}>// El título del encabezado de la pantalla de actividades, que utiliza un tamaño de fuente grande, un peso de fuente audaz, un color blanco para contrastar con el fondo del encabezado, y una fuente personalizada para mejorar la apariencia visual del título, lo que mejora la experiencia de usuario al proporcionar un título claro y atractivo para la pantalla de actividades que capta la atención del usuario y establece el contexto para el contenido de la pantalla de actividades
+            Actividades // El título del encabezado de la pantalla de actividades, que utiliza un tamaño de fuente grande, un peso de fuente audaz, un color blanco para contrastar con el fondo del encabezado, y una fuente personalizada para mejorar la apariencia visual del título, lo que mejora la experiencia de usuario al proporcionar un título claro y atractivo para la pantalla de actividades que capta la atención del usuario y establece el contexto para el contenido de la pantalla de actividades
           </div>
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)", marginTop: 2, fontFamily: fonts.body }}>
             Elige una actividad y participa con tu familia
