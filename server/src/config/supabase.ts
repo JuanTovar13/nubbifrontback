@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_KEY, SUPABASE_URL } from '.';
+import { createClient } from '@supabase/supabase-js';// Importación de la función createClient del módulo '@supabase/supabase-js' para crear una instancia del cliente de Supabase, lo que permite a la aplicación interactuar con los servicios de Supabase (como autenticación, base de datos, almacenamiento, etc.) de manera sencilla y eficiente al proporcionar una interfaz de cliente para realizar operaciones en estos servicios
+import { SUPABASE_KEY, SUPABASE_URL } from '.';// Importación de las variables de entorno para la configuración de la conexión a Supabase, lo que permite a la aplicación obtener esta información de manera segura y flexible desde el entorno de ejecución, mejorando la seguridad al no hardcodear esta información en el código fuente y facilitando la configuración de la aplicación en diferentes entornos (desarrollo, producción, etc.) al permitir cambiar estas variables sin modificar el código fuente
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);// Creación de una nueva instancia del cliente de Supabase utilizando la URL y la clave de Supabase, lo que permite a la aplicación interactuar con los servicios de Supabase (como autenticación, base de datos, almacenamiento, etc.) de manera sencilla y eficiente al proporcionar una interfaz de cliente para realizar operaciones en estos servicios

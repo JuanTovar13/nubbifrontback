@@ -1,11 +1,11 @@
-import { Pool } from 'pg';
-import { DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER } from './index';
+import { Pool } from 'pg'; // Importación de la clase Pool del módulo 'pg' para crear un pool de conexiones a la base de datos PostgreSQL, lo que permite a la aplicación gestionar de manera eficiente las conexiones a la base de datos y mejorar el rendimiento al reutilizar conexiones existentes en lugar de crear nuevas conexiones para cada solicitud a la base de datos
+import { DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER } from './index';// Importación de las variables de entorno para la configuración de la conexión a la base de datos, lo que permite a la aplicación obtener esta información de manera segura y flexible desde el entorno de ejecución, mejorando la seguridad al no hardcodear esta información en el código fuente y facilitando la configuración de la aplicación en diferentes entornos (desarrollo, producción, etc.) al permitir cambiar estas variables sin modificar el código fuente
 
-export const pool = new Pool({
-  host: DB_HOST,
-  port: DB_PORT,
-  database: DB_NAME,
-  user: DB_USER,
-  password: DB_PASSWORD,
+export const pool = new Pool({// Creación de una nueva instancia de Pool con la configuración de conexión a la base de datos, lo que permite a la aplicación gestionar de manera eficiente las conexiones a la base de datos y mejorar el rendimiento al reutilizar conexiones existentes en lugar de crear nuevas conexiones para cada solicitud a la base de datos
+  host: DB_HOST,// Campo para almacenar la dirección del host de la base de datos, que se utiliza para establecer la conexión a la base de datos PostgreSQL y permitir a la aplicación acceder a los datos almacenados en la base de datos
+  port: DB_PORT,// Campo para almacenar el número de puerto de la base de datos, que se utiliza para establecer la conexión a la base de datos PostgreSQL y permitir a la aplicación acceder a los datos almacenados en la base de datos
+  database: DB_NAME,// Campo para almacenar el nombre de la base de datos, que se utiliza para establecer la conexión a la base de datos PostgreSQL y permitir a la aplicación acceder a los datos almacenados en la base de datos
+  user: DB_USER,// Campo para almacenar el nombre de usuario de la base de datos, que se utiliza para establecer la conexión a la base de datos PostgreSQL y permitir a la aplicación acceder a los datos almacenados en la base de datos con los permisos adecuados según el usuario configurado
+  password: DB_PASSWORD,// Campo para almacenar la contraseña de la base de datos, que se utiliza para establecer la conexión a la base de datos PostgreSQL y permitir a la aplicación acceder a los datos almacenados en la base de datos con los permisos adecuados según el usuario configurado, mejorando la seguridad al no hardcodear esta información en el código fuente y permitir cambiarla de manera segura a través de variables de entorno
 });
 
