@@ -15,6 +15,7 @@ import { DashboardScreen }       from "./screens/gestor/Dashboard";
 import { PerfilGestor }          from "./screens/gestor/PerfilGestor";
 import { ComunidadGestorScreen } from "./screens/gestor/ComunidadGestor";
 import type { UserRole } from "./types";
+import { ChatScreen } from "./screens/chat/ChatScreen";
 
 const PrivateRoute = ({ children, role }: { children: JSX.Element; role?: UserRole }) => {
   const { auth, isLoading } = useAuth();
@@ -42,7 +43,8 @@ const AppRoutes = () => (
       <Route path="/familia/comunidad"   element={<PrivateRoute role="familia"><ComunidadScreen /></PrivateRoute>} />
       <Route path="/familia/escanear-qr" element={<PrivateRoute role="familia"><EscanearQRScreen /></PrivateRoute>} />
       <Route path="/familia/perfil"      element={<PrivateRoute role="familia"><Perfil /></PrivateRoute>} />
-
+      <Route path="/familia/comunidad/:roomId" element={<PrivateRoute role="familia"><ChatScreen /></PrivateRoute>} />
+      <Route path="/gestor/comunidad/:roomId" element={<PrivateRoute role="gestor"><ChatScreen /></PrivateRoute>} />
       <Route path="/gestor"              element={<PrivateRoute role="gestor"><HomeGestorScreen /></PrivateRoute>} />
       <Route path="/gestor/actividades"  element={<PrivateRoute role="gestor"><CrearActividadScreen /></PrivateRoute>} />
       <Route path="/gestor/comunidad"    element={<PrivateRoute role="gestor"><ComunidadGestorScreen /></PrivateRoute>} />
