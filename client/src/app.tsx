@@ -17,7 +17,7 @@ import { ComunidadGestorScreen } from "./screens/gestor/ComunidadGestor";
 import type { UserRole } from "./types";
 import { ChatScreen } from "./screens/chat/ChatScreen";
 
-const PrivateRoute = ({ children, role }: { children: JSX.Element; role?: UserRole }) => {// Componente de ruta privada que controla el acceso a ciertas rutas según el estado de autenticación del usuario y su rol, lo que permite a los componentes de esta pantalla redirigir a los usuarios no autenticados a la pantalla de inicio de sesión y redirigir a los usuarios autenticados a la ruta correspondiente según su rol, lo que mejora la seguridad y la experiencia del usuario al garantizar que solo los usuarios autorizados puedan acceder a ciertas partes de la aplicación
+const PrivateRoute = ({ children, role }: { children: JSX.Element; role?: UserRole }) => {
   const { auth, isLoading } = useAuth();// Utiliza el hook useAuth para obtener el objeto de autenticación y su estado de carga, lo que permite a los componentes de esta pantalla controlar el acceso a ciertas rutas según el estado de autenticación del usuario y su rol, y mostrar un indicador de carga mientras se obtiene esta información
   if (isLoading) return null;// Si el estado de autenticación aún se está cargando, no renderiza nada (podría mostrar un spinner o indicador de carga aquí), lo que mejora la experiencia del usuario al evitar mostrar contenido incorrecto o redirigir prematuramente mientras se obtiene la información de autenticación
   if (!auth) return <Navigate to="/" replace />;// Si el usuario no está autenticado, redirige a la pantalla de selección de rol (que a su vez redirige a login), lo que mejora la experiencia del usuario al guiarlo hacia el proceso de autenticación para acceder a las funcionalidades protegidas de la aplicación
@@ -25,19 +25,18 @@ const PrivateRoute = ({ children, role }: { children: JSX.Element; role?: UserRo
   return children;// Si el usuario está autenticado y tiene el rol correcto (si se especifica), renderiza el componente hijo, lo que permite a los usuarios autorizados acceder a la ruta protegida y disfrutar de una experiencia personalizada y relevante dentro de la aplicación según su estado de autenticación y rol
 };// Componente de ruta privada que controla el acceso a ciertas rutas según el estado de autenticación del usuario y su rol, lo que permite a los componentes de esta pantalla redirigir a los usuarios no autenticados a la pantalla de inicio de sesión y redirigir a los usuarios autenticados a la ruta correspondiente según su rol, lo que mejora la seguridad y la experiencia del usuario al garantizar que solo los usuarios autorizados puedan acceder a ciertas partes de la aplicación
 
-const PublicRoute = ({ children }: { children: JSX.Element }) => {// Componente de ruta pública que controla el acceso a ciertas rutas para usuarios no autenticados, lo que permite a los componentes de esta pantalla redirigir a los usuarios autenticados a la ruta correspondiente según su rol y mostrar el contenido solo a los usuarios no autenticados, lo que mejora la experiencia del usuario al guiarlo hacia la autenticación si intenta acceder a contenido público mientras ya está autenticado
-  const { auth, isLoading } = useAuth();// Utiliza el hook useAuth para obtener el objeto de autenticación y su estado de carga, lo que permite a los componentes de esta pantalla controlar el acceso a ciertas rutas para usuarios no autenticados y mostrar un indicador de carga mientras se obtiene esta información
-  if (isLoading) return null;// Si el estado de autenticación aún se está cargando, no renderiza nada (podría mostrar un spinner o indicador de carga aquí), lo que mejora la experiencia del usuario al evitar mostrar contenido incorrecto o redirigir prematuramente mientras se obtiene la información de autenticación
-  if (auth) return <Navigate to={`/${auth.user.role}`} replace />;// Si el usuario ya está autenticado, redirige a la ruta correspondiente a su rol, lo que mejora la experiencia del usuario al guiarlo hacia la parte de la aplicación que es relevante para su rol y evitar mostrar contenido público que no es relevante para usuarios autenticados
-  return children;// Si el usuario no está autenticado, renderiza el componente hijo, lo que permite a los usuarios no autenticados acceder a contenido público como la pantalla de selección de rol o la pantalla de inicio de sesión, y proporciona una experiencia personalizada y relevante para cada tipo de usuario dentro de la aplicación según su estado de autenticación
-};// Componente de ruta pública que controla el acceso a ciertas rutas para usuarios no autenticados, lo que permite a los componentes de esta pantalla redirigir a los usuarios autenticados a la ruta correspondiente según su rol y mostrar el contenido solo a los usuarios no autenticados, lo que mejora la experiencia del usuario al guiarlo hacia la autenticación si intenta acceder a contenido público mientras ya está autenticado
+const PublicRoute = ({ children }: { children: JSX.Element }) => {
+  const { auth, isLoading } = useAuth();
+  if (isLoading) return null;
+  if (auth) return <Navigate to={`/${auth.user.role}`} replace />;
+  return children;
+};
 
-const AppRoutes = () => (// Componente principal de rutas de la aplicación, que define todas las rutas disponibles en la aplicación y utiliza los componentes PrivateRoute y PublicRoute para controlar el acceso a cada ruta según el estado de autenticación del usuario y su rol, lo que mejora la seguridad y la experiencia del usuario al garantizar que solo los usuarios autorizados puedan acceder a ciertas partes de la aplicación y guiar a los usuarios hacia la autenticación si intentan acceder a contenido público mientras ya están autenticados
-  <div style={{ display: "flex", minHeight: "100vh", width: "100%", justifyContent:"center"}}>// Contenedor principal de la aplicación con estilos para ocupar toda la pantalla, centrar el contenido y proporcionar una experiencia visual agradable en diferentes tamaños de pantalla, lo que mejora la experiencia del usuario al garantizar que la aplicación se vea bien y sea fácil de usar en una variedad de dispositivos
-    <Routes>// Componente de rutas que define todas las rutas disponibles en la aplicación, lo que permite a los componentes de esta pantalla redirigir a los usuarios a otras pantallas de la aplicación según las interacciones del usuario y controlar el acceso a ciertas rutas según el estado de autenticación del usuario y su rol
-      <Route path="/"      element={<PublicRoute><RoleSelector /></PublicRoute>} />// Ruta para la pantalla de selección de rol, que es accesible solo para usuarios no autenticados, lo que permite a los nuevos usuarios elegir su rol (familia o gestor) al ingresar a la aplicación y proporciona una experiencia personalizada y relevante para cada tipo de usuario desde el inicio de la aplicación
-      <Route path="/login" element={<PublicRoute><LoginScreen /></PublicRoute>} />// Ruta para la pantalla de inicio de sesión, que es accesible solo para usuarios no autenticados, lo que permite a los usuarios autenticarse en la aplicación para acceder a las funcionalidades protegidas y personalizadas según su rol, lo que mejora la seguridad y la experiencia del usuario al requerir autenticación para acceder a ciertas partes de la aplicación
-
+const AppRoutes = () => (
+  <div style={{ display: "flex", minHeight: "100vh", width: "100%", justifyContent:"center"}}>
+    <Routes>
+      <Route path="/"      element={<PublicRoute><RoleSelector /></PublicRoute>} />
+      <Route path="/login" element={<PublicRoute><LoginScreen /></PublicRoute>} />
       <Route path="/familia"             element={<PrivateRoute role="familia"><HomeFamiliaScreen /></PrivateRoute>} />
       <Route path="/familia/actividades" element={<PrivateRoute role="familia"><ActividadesScreen /></PrivateRoute>} />
       <Route path="/familia/comunidad"   element={<PrivateRoute role="familia"><ComunidadScreen /></PrivateRoute>} />
@@ -51,13 +50,13 @@ const AppRoutes = () => (// Componente principal de rutas de la aplicación, que
       <Route path="/gestor/dashboard"    element={<PrivateRoute role="gestor"><DashboardScreen /></PrivateRoute>} />
       <Route path="/gestor/perfil"       element={<PrivateRoute role="gestor"><PerfilGestor /></PrivateRoute>} />
 
-      <Route path="*" element={<Navigate to="/" replace />} />// Ruta para cualquier ruta no definida, que redirige a la pantalla de selección de rol, lo que mejora la experiencia del usuario al guiarlo hacia el inicio de la aplicación si intenta acceder a una ruta no válida o no autorizada, y proporciona una forma de manejar errores de navegación de manera elegante dentro de la aplicación
-    </Routes>// Componente de rutas que define todas las rutas disponibles en la aplicación, lo que permite a los componentes de esta pantalla redirigir a los usuarios a otras pantallas de la aplicación según las interacciones del usuario y controlar el acceso a ciertas rutas según el estado de autenticación del usuario y su rol
-  </div>// Contenedor principal de la aplicación con estilos para ocupar toda la pantalla, centrar el contenido y proporcionar una experiencia visual agradable en diferentes tamaños de pantalla, lo que mejora la experiencia del usuario al garantizar que la aplicación se vea bien y sea fácil de usar en una variedad de dispositivos
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  </div>
 );
 
-export const App = () => (// Componente principal de la aplicación que envuelve el componente de rutas con el proveedor de autenticación, lo que permite a los componentes de esta pantalla acceder a la información de autenticación y controlar el acceso a ciertas rutas según el estado de autenticación del usuario y su rol, lo que mejora la seguridad y la experiencia del usuario al garantizar que solo los usuarios autorizados puedan acceder a ciertas partes de la aplicación y guiar a los usuarios hacia la autenticación si intentan acceder a contenido público mientras ya están autenticados
-  <AuthProvider>// Proveedor de autenticación que envuelve toda la aplicación, lo que permite a los componentes de esta pantalla acceder a la información de autenticación y controlar el acceso a ciertas rutas según el estado de autenticación del usuario y su rol, lo que mejora la seguridad y la experiencia del usuario al garantizar que solo los usuarios autorizados puedan acceder a ciertas partes de la aplicación y guiar a los usuarios hacia la autenticación si intentan acceder a contenido público mientras ya están autenticados
-    <AppRoutes />// Componente de rutas que define todas las rutas disponibles en la aplicación, lo que permite a los componentes de esta pantalla redirigir a los usuarios a otras pantallas de la aplicación según las interacciones del usuario y controlar el acceso a ciertas rutas según el estado de autenticación del usuario y su rol
-  </AuthProvider>// Proveedor de autenticación que envuelve toda la aplicación, lo que permite a los componentes de esta pantalla acceder a la información de autenticación y controlar el acceso a ciertas rutas según el estado de autenticación del usuario y su rol, lo que mejora la seguridad y la experiencia del usuario al garantizar que solo los usuarios autorizados puedan acceder a ciertas partes de la aplicación y guiar a los usuarios hacia la autenticación si intentan acceder a contenido público mientras ya están autenticados
-);// Componente principal de la aplicación que envuelve el componente de rutas con el proveedor de autenticación, lo que permite a los componentes de esta pantalla acceder a la información de autenticación y controlar el acceso a ciertas rutas según el estado de autenticación del usuario y su rol, lo que mejora la seguridad y la experiencia del usuario al garantizar que solo los usuarios autorizados puedan acceder a ciertas partes de la aplicación y guiar a los usuarios hacia la autenticación si intentan acceder a contenido público mientras ya están autenticados
+export const App = () => (
+  <AuthProvider>
+    <AppRoutes />
+  </AuthProvider>
+);
