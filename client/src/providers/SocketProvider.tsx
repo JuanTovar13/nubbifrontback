@@ -23,6 +23,17 @@ interface ServerEvents {
     name: string;
     isTyping: boolean;
   }) => void;
+  nueva_actividad: (actividad: {
+    id: string;
+    titulo: string;
+    descripcion: string | null;
+    fecha_inicio: string;
+    ubicacion: string | null;
+    qr_payload: string;
+    imagen_url: string | null;
+    creada_por: string;
+    created_at: string;
+  }) => void;
   error: (message: string) => void;
 }
 
