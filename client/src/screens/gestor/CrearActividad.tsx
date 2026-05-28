@@ -88,7 +88,7 @@ export const CrearActividadScreen = () => {// Componente principal de la pantall
                 }}
               >
                 {t.charAt(0).toUpperCase() + t.slice(1)}
-              </button>// Botones para cambiar entre las pestañas de creación de actividades e historial de actividades, con estilos que indican claramente cuál pestaña está seleccionada, lo que permite a los usuarios navegar fácilmente entre estas dos vistas dentro de la sección de gestor de la aplicación y proporciona una experiencia de usuario clara y consistente al mostrar visualmente la pestaña activa
+              </button>
             ))}
           </div>
         </div>
@@ -199,7 +199,7 @@ export const CrearActividadScreen = () => {// Componente principal de la pantall
 
         </div>
       </div>
-      <BottomNav items={gestorNav} />// Componente de navegación inferior que muestra las opciones de navegación definidas en gestorNav, lo que permite a los usuarios navegar fácilmente entre las diferentes pantallas de la sección de gestor de la aplicación desde la parte inferior de la interfaz de usuario, proporcionando una experiencia de usuario fluida y fácil de navegar dentro de la sección de gestor de la aplicación
+      <BottomNav items={gestorNav} />
     </div>
   );
 };
