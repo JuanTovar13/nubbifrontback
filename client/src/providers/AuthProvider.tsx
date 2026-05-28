@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }: { children: ComponentChildren }) => {
   };
 
   return (// El componente proveedor del contexto de autenticación envuelve a los componentes hijos con el AuthContext.Provider, proporcionando el valor del contexto que incluye el estado de autenticación, el estado de carga y las funciones para login, registro y logout, lo que permite a los componentes hijos acceder a esta información y funciones a través del contexto de autenticación para mostrar la interfaz correspondiente según el estado del usuario (autenticado o no, y su rol) y para realizar operaciones de autenticación como iniciar sesión, registrarse o cerrar sesión
-    <AuthContext.Provider value={{ auth, isLoading, login, register, logout }}>//
+    <AuthContext.Provider value={{ auth, isLoading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

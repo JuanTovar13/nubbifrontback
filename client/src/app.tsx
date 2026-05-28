@@ -18,13 +18,12 @@ import type { UserRole } from "./types";
 import { ChatScreen } from "./screens/chat/ChatScreen";
 
 const PrivateRoute = ({ children, role }: { children: JSX.Element; role?: UserRole }) => {
-  const { auth, isLoading } = useAuth();// Utiliza el hook useAuth para obtener el objeto de autenticación y su estado de carga, lo que permite a los componentes de esta pantalla controlar el acceso a ciertas rutas según el estado de autenticación del usuario y su rol, y mostrar un indicador de carga mientras se obtiene esta información
-  if (isLoading) return null;// Si el estado de autenticación aún se está cargando, no renderiza nada (podría mostrar un spinner o indicador de carga aquí), lo que mejora la experiencia del usuario al evitar mostrar contenido incorrecto o redirigir prematuramente mientras se obtiene la información de autenticación
-  if (!auth) return <Navigate to="/" replace />;// Si el usuario no está autenticado, redirige a la pantalla de selección de rol (que a su vez redirige a login), lo que mejora la experiencia del usuario al guiarlo hacia el proceso de autenticación para acceder a las funcionalidades protegidas de la aplicación
-  if (role && auth.user.role !== role) return <Navigate to={`/${auth.user.role}`} replace />;// Si se especifica un rol y el rol del usuario autenticado no coincide, redirige a la ruta correspondiente al rol del usuario, lo que mejora la experiencia del usuario al garantizar que solo accedan a las partes de la aplicación que son relevantes para su rol y evitar confusiones o accesos no autorizados
-  return children;// Si el usuario está autenticado y tiene el rol correcto (si se especifica), renderiza el componente hijo, lo que permite a los usuarios autorizados acceder a la ruta protegida y disfrutar de una experiencia personalizada y relevante dentro de la aplicación según su estado de autenticación y rol
-};// Componente de ruta privada que controla el acceso a ciertas rutas según el estado de autenticación del usuario y su rol, lo que permite a los componentes de esta pantalla redirigir a los usuarios no autenticados a la pantalla de inicio de sesión y redirigir a los usuarios autenticados a la ruta correspondiente según su rol, lo que mejora la seguridad y la experiencia del usuario al garantizar que solo los usuarios autorizados puedan acceder a ciertas partes de la aplicación
-
+  const { auth, isLoading } = useAuth();
+  if (isLoading) return null;
+  if (!auth) return <Navigate to="/" replace />;
+  if (role && auth.user.role !== role) return <Navigate to={`/${auth.user.role}`} replace />;
+  return children;
+};
 const PublicRoute = ({ children }: { children: JSX.Element }) => {
   const { auth, isLoading } = useAuth();
   if (isLoading) return null;
@@ -57,6 +56,6 @@ const AppRoutes = () => (
 
 export const App = () => (
   <AuthProvider>
-    <AppRoutes />
+    <AppRoutes/>
   </AuthProvider>
 );

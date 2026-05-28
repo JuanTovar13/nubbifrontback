@@ -4,7 +4,7 @@ import { App } from "./app.tsx";
 import { BrowserRouter } from "react-router-dom";
 import { ToastProvider } from "./providers/ToastProvider";
 import { AxiosProvider } from "./providers/AxiosProvider";
-import { SocketProvider } from "./providers/SocketProvider"; // NUEVO
+import { SocketProvider } from "./providers/SocketProvider";
 
 render(
   <ToastProvider>
