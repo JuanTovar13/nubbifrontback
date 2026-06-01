@@ -203,8 +203,6 @@ export const EscanearQRScreen = () => {
   const [mode, setMode] = useState<ScanMode>("camera");
 
   // Estado cámara
-  const [facingMode, setFacingMode] = useState<FacingMode>("environment");
-  const [torchEnabled, setTorchEnabled] = useState(false);
   const [scannedPayload, setScannedPayload] = useState<string | null>(null);
 
   // Modo manual
@@ -262,11 +260,11 @@ export const EscanearQRScreen = () => {
 
   const cameraActive = mode === "camera" && !scannedPayload && !resultado;
 
-  const { videoRef, canvasRef, cameraState, supportsTorch } = useQRScanner(
+  const { videoRef, canvasRef, cameraState } = useQRScanner(
     handleDetected,
     cameraActive,
-    facingMode,
-    torchEnabled
+    "environment",
+    false
   );
 
   // ─── Galería ───────────────────────────────────────────────────────────────
@@ -301,11 +299,6 @@ export const EscanearQRScreen = () => {
   };
 
   // ─── Flipcámara ────────────────────────────────────────────────────────────
-
-  const flipCamera = () => {
-    setFacingMode((prev) => (prev === "environment" ? "user" : "environment"));
-    setTorchEnabled(false);
-  };
 
   // ─── Tutorial steps ────────────────────────────────────────────────────────
 
@@ -784,55 +777,6 @@ export const EscanearQRScreen = () => {
           {/* ── MODO CÁMARA ──────────────────────────────────────────────── */}
           {mode === "camera" && !succeeded && (
             <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-              {/* Controles superiores de cámara */}
-              {cameraState === "active" && (
-                <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-                  <button
-                    onClick={flipCamera}
-                    style={{
-                      flex: 1,
-                      padding: "8px 0",
-                      background: "white",
-                      border: `1px solid ${colors.gray200}`,
-                      borderRadius: 10,
-                      fontSize: 12,
-                      fontWeight: 700,
-                      cursor: "pointer",
-                      fontFamily: fonts.body,
-                      color: colors.text,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 6,
-                    }}
-                  >
-                    🔄 {facingMode === "environment" ? "Delantera" : "Trasera"}
-                  </button>
-                  {supportsTorch && (
-                    <button
-                      onClick={() => setTorchEnabled((v) => !v)}
-                      style={{
-                        flex: 1,
-                        padding: "8px 0",
-                        background: torchEnabled ? colors.yellow : "white",
-                        border: `1px solid ${torchEnabled ? colors.yellow : colors.gray200}`,
-                        borderRadius: 10,
-                        fontSize: 12,
-                        fontWeight: 700,
-                        cursor: "pointer",
-                        fontFamily: fonts.body,
-                        color: torchEnabled ? colors.gray900 : colors.text,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 6,
-                      }}
-                    >
-                      {torchEnabled ? "🔦 Encendida" : "🔦 Linterna"}
-                    </button>
-                  )}
-                </div>
-              )}
 
               {/* Visor */}
               <div
@@ -855,54 +799,10 @@ export const EscanearQRScreen = () => {
                     height: "100%",
                     objectFit: "cover",
                     display: cameraState === "active" ? "block" : "none",
-                    transform: facingMode === "user" ? "scaleX(-1)" : "none",
                   }}
                 />
                 <canvas ref={canvasRef} style={{ display: "none" }} />
 
-                {/* Esquinas + línea de escaneo */}
-                {cameraState === "active" && !scannedPayload && (
-                  <>
-                    {[
-                      { top: 14, left: 14, borderTop: true, borderLeft: true },
-                      { top: 14, right: 14, borderTop: true, borderRight: true },
-                      { bottom: 14, left: 14, borderBottom: true, borderLeft: true },
-                      { bottom: 14, right: 14, borderBottom: true, borderRight: true },
-                    ].map((c, i) => (
-                      <div
-                        key={i}
-                        className="qr-corner-pulse"
-                        style={{
-                          position: "absolute",
-                          width: 28, height: 28,
-                          top: (c as any).top, left: (c as any).left,
-                          right: (c as any).right, bottom: (c as any).bottom,
-                          borderColor: colors.teal, borderStyle: "solid",
-                          borderTopWidth: (c as any).borderTop ? 3 : 0,
-                          borderLeftWidth: (c as any).borderLeft ? 3 : 0,
-                          borderRightWidth: (c as any).borderRight ? 3 : 0,
-                          borderBottomWidth: (c as any).borderBottom ? 3 : 0,
-                          borderRadius: 5,
-                        }}
-                      />
-                    ))}
-                    <div
-                      className="qr-scan-line"
-                      style={{
-                        background: `linear-gradient(90deg, transparent, ${colors.teal}cc, ${colors.teal}, ${colors.teal}cc, transparent)`,
-                        boxShadow: `0 0 12px ${colors.teal}, 0 0 4px ${colors.teal}`,
-                      }}
-                    />
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "18%", left: "18%", right: "18%", bottom: "18%",
-                        border: `1px dashed rgba(255,255,255,0.15)`,
-                        borderRadius: 8, pointerEvents: "none",
-                      }}
-                    />
-                  </>
-                )}
 
                 {/* Estados de cámara */}
                 {cameraState !== "active" && (
@@ -1052,8 +952,7 @@ export const EscanearQRScreen = () => {
                     }}
                   >
                     <div className="qr-dot-pulse" style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e" }} />
-                    {facingMode === "environment" ? "Cámara trasera" : "Cámara delantera"}
-                    {torchEnabled && " · 🔦"}
+                    Cámara activa
                   </div>
                 )}
               </div>
@@ -1317,55 +1216,6 @@ export const EscanearQRScreen = () => {
             </div>
           )}
 
-          {/* ── ACCESOS RÁPIDOS ENTRE MODOS ──────────────────────────────── */}
-          {!succeeded && (
-            <div
-              style={{
-                background: "white",
-                borderRadius: 14,
-                padding: 14,
-                boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
-              }}
-            >
-              <div style={{ fontSize: 11, fontWeight: 700, color: colors.textLight, fontFamily: fonts.body, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                Otros métodos de escaneo
-              </div>
-              <div style={{ display: "flex", gap: 8 }}>
-                {(["camera", "gallery", "manual"] as ScanMode[])
-                  .filter((m) => m !== mode)
-                  .map((m) => {
-                    const info = {
-                      camera: { icon: "📷", label: "Cámara", desc: "Escáner en vivo" },
-                      gallery: { icon: "🖼️", label: "Galería", desc: "Desde una foto" },
-                      manual: { icon: "✏️", label: "Manual", desc: "Escribir código" },
-                    }[m];
-                    return (
-                      <button
-                        key={m}
-                        onClick={() => { setMode(m); resetScan(); }}
-                        style={{
-                          flex: 1,
-                          padding: "10px 8px",
-                          background: colors.gray100,
-                          border: "none",
-                          borderRadius: 10,
-                          cursor: "pointer",
-                          textAlign: "center",
-                        }}
-                      >
-                        <div style={{ fontSize: 20 }}>{info.icon}</div>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: colors.text, fontFamily: fonts.body, marginTop: 3 }}>
-                          {info.label}
-                        </div>
-                        <div style={{ fontSize: 9, color: colors.textLight, fontFamily: fonts.body }}>
-                          {info.desc}
-                        </div>
-                      </button>
-                    );
-                  })}
-              </div>
-            </div>
-          )}
 
           {/* ── TIPS ─────────────────────────────────────────────────────── */}
           {!succeeded && (
