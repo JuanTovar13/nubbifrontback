@@ -1,8 +1,9 @@
-import { useState, useEffect } from "preact/hooks";// Cambiado a Preact
+import { useState, useEffect, useRef } from "preact/hooks";
 import { colors, fonts } from "../../tokens"; // Importación de tokens de diseño para colores y fuentes, lo que permite mantener la consistencia visual en la aplicación al usar estos tokens para definir los estilos de los componentes
 import { TopBar } from "../../components/PhoneFrame";// Importación del componente TopBar para mostrar la barra superior de la pantalla, lo que proporciona una estructura visual clara y consistente en la aplicación al mostrar el título de la pantalla y otros elementos de navegación o información relevante en la parte superior de la interfaz de usuario
 import { BottomNav, gestorNav } from "../../components/BottomNav";// Importación del componente BottomNav y la configuración de navegación para el gestor, lo que proporciona una barra de navegación inferior con las opciones de navegación definidas en gestorNav, lo que permite a los usuarios navegar fácilmente entre las diferentes pantallas de la sección de gestor de la aplicación
-import { useActividades, useCreateActividad } from "../../providers/ActividadesProvider";// Importación de hooks personalizados useActividades y useCreateActividad para gestionar el estado y las operaciones relacionadas con las actividades, lo que permite a los componentes de esta pantalla obtener la lista de actividades, crear nuevas actividades y manejar el estado de carga y errores relacionados con estas operaciones, mejorando la experiencia del usuario al proporcionar funcionalidades completas para la gestión de actividades dentro de la sección de gestor de la aplicación
+import { useActividades, useCreateActividad, type Actividad } from "../../providers/ActividadesProvider";
+import QRCode from "qrcode";// Importación de hooks personalizados useActividades y useCreateActividad para gestionar el estado y las operaciones relacionadas con las actividades, lo que permite a los componentes de esta pantalla obtener la lista de actividades, crear nuevas actividades y manejar el estado de carga y errores relacionados con estas operaciones, mejorando la experiencia del usuario al proporcionar funcionalidades completas para la gestión de actividades dentro de la sección de gestor de la aplicación
 
 const formatFecha = (iso: string) => {// Función para formatear una fecha en formato ISO a un formato legible en español, lo que permite mostrar las fechas de las actividades de manera clara y comprensible para los usuarios de habla hispana dentro de la sección de gestor de la aplicación
   const d = new Date(iso);// Crea un objeto Date a partir de la cadena de fecha en formato ISO, lo que permite manipular y formatear la fecha de manera más fácil utilizando los métodos disponibles en el objeto Date
@@ -20,6 +21,90 @@ const inputStyle = {// Estilos comunes para los campos de entrada (input y texta
   fontFamily: fonts.body,
   width: "100%",
   boxSizing: "border-box" as const,
+};
+
+const ActividadHistorialCard = ({ act }: { act: Actividad }) => {
+  const [abierta, setAbierta] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (abierta && canvasRef.current) {
+      QRCode.toCanvas(canvasRef.current, act.qr_payload, {
+        width: 200,
+        margin: 2,
+        color: { dark: "#1a1a2e", light: "#ffffff" },
+      });
+    }
+  }, [abierta, act.qr_payload]);
+
+  return (
+    <div style={{
+      background: "white", borderRadius: 12,
+      boxShadow: "0 1px 4px rgba(0,0,0,0.06)", overflow: "hidden",
+    }}>
+      <button
+        onClick={() => setAbierta((v) => !v)}
+        style={{
+          width: "100%", display: "flex", gap: 10, alignItems: "center",
+          padding: "12px 14px", background: "none", border: "none",
+          cursor: "pointer", textAlign: "left",
+        }}
+      >
+        <div style={{
+          width: 36, height: 36, borderRadius: 10,
+          background: colors.pink + "20",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 18, flexShrink: 0,
+        }}>
+          🎯
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{
+            fontWeight: 700, fontSize: 12, color: colors.text,
+            fontFamily: fonts.body,
+            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          }}>
+            {act.titulo}
+          </div>
+          <div style={{ fontSize: 10, color: colors.textLight, fontFamily: fonts.body }}>
+            {formatFecha(act.fecha_inicio)}
+          </div>
+        </div>
+        <span style={{
+          fontSize: 16, color: colors.gray500,
+          transform: abierta ? "rotate(90deg)" : "rotate(0deg)",
+          transition: "transform 0.2s",
+          lineHeight: 1,
+        }}>›</span>
+      </button>
+
+      {abierta && (
+        <div style={{
+          borderTop: `1px solid ${colors.gray100}`,
+          padding: "16px 14px 18px",
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
+        }}>
+          <div style={{ fontSize: 11, color: colors.textLight, fontFamily: fonts.body }}>
+            Las familias escanean este código para registrar su asistencia
+          </div>
+          <div style={{
+            padding: 12, background: "white",
+            borderRadius: 12, boxShadow: "0 2px 12px rgba(0,0,0,0.10)",
+            display: "inline-flex",
+          }}>
+            <canvas ref={canvasRef} />
+          </div>
+          <div style={{
+            fontSize: 9, color: colors.textLight, fontFamily: fonts.body,
+            letterSpacing: "0.5px", textAlign: "center", maxWidth: 200,
+            wordBreak: "break-all",
+          }}>
+            {act.qr_payload}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export const CrearActividadScreen = () => {// Componente principal de la pantalla de creación de actividades para el gestor, que muestra una barra superior con el título y una sección de contenido con un header que incluye un gradiente y tabs para cambiar entre la vista de creación de actividades y el historial de actividades, y un formulario para crear nuevas actividades o una lista de actividades existentes según la pestaña seleccionada, lo que permite a los gestores gestionar sus actividades dentro de la sección de gestor de la aplicación
@@ -173,26 +258,7 @@ export const CrearActividadScreen = () => {// Componente principal de la pantall
                 </div>
               )}
               {actividades.map((act) => (
-                <div key={act.id} style={{
-                  background: "white", borderRadius: 12, padding: "12px 14px",
-                  display: "flex", gap: 10, alignItems: "center",
-                  boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-                }}>
-                  <div style={{
-                    width: 36, height: 36, borderRadius: 10, background: colors.pink + "20",
-                    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0,
-                  }}>
-                    🎯
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 12, color: colors.text, fontFamily: fonts.body, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {act.titulo}
-                    </div>
-                    <div style={{ fontSize: 10, color: colors.textLight, fontFamily: fonts.body }}>
-                      {formatFecha(act.fecha_inicio)}
-                    </div>
-                  </div>
-                </div>
+                <ActividadHistorialCard key={act.id} act={act} />
               ))}
             </div>
           )}

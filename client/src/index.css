@@ -90,3 +90,30 @@ input:focus, select:focus, textarea:focus {
 .animate-slide-up {
   animation: slideUp 0.25s ease-out forwards;
 }
+
+/* QR scanner animations */
+@keyframes qr-scan-line {
+  0%   { top: 10%; }
+  50%  { top: 88%; }
+  100% { top: 10%; }
+}
+@keyframes qr-corner-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+@keyframes qr-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+.qr-scan-line {
+  position: absolute;
+  left: 14px; right: 14px;
+  height: 2px;
+  animation: qr-scan-line 2.2s ease-in-out infinite;
+}
+.qr-corner-pulse {
+  animation: qr-corner-pulse 2s ease-in-out infinite;
+}
+.qr-dot-pulse {
+  animation: qr-dot-pulse 1s ease-in-out infinite;
+}

@@ -7,7 +7,7 @@ import type { Actividad } from "../actividades/actividades.types";
 export interface MessagePayload {
   id: string;
   room_id: string;
-  profile_id: string;
+  created_by: string;
   content: string;
   created_at: string;
   profiles: { full_name: string; email: string };
@@ -95,7 +95,7 @@ export const initChatGateway = (httpServer: HTTPServer) => {
 
       try {
         const result = await pool.query(
-          `INSERT INTO messages (room_id, profile_id, content)
+          `INSERT INTO messages (room_id, created_by, content)
            VALUES ($1, $2, $3)
            RETURNING *`,
           [roomId, user.id, content.trim()]

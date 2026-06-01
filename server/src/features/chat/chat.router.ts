@@ -30,13 +30,16 @@ router.post("/rooms", authMiddleware, async (req: any, res: Response) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO rooms (name, description, created_by)
-       VALUES ($1, $2, $3)
+      `INSERT INTO rooms (name, created_by)
+       VALUES ($1, $2)
        RETURNING *`,
-      [name.trim(), description?.trim() ?? null, req.user!.id]
+      [name.trim(), req.user!.id]
     );
     res.status(201).json(result.rows[0]);
-  } catch (err) {
+  } catch (err: any) {
+    if (err.code === "23505") {
+      return res.status(400).json({ error: "Ya existe un canal con ese nombre" });
+    }
     res.status(500).json({ error: "Error creando sala" });
   }
 });
@@ -53,10 +56,10 @@ router.get(
 
     try {
       const result = await pool.query(
-        `SELECT m.*, 
+        `SELECT m.*,
                 json_build_object('full_name', p.full_name, 'email', p.email) AS profiles
          FROM messages m
-         LEFT JOIN profiles p ON p.id = m.profile_id
+         LEFT JOIN profiles p ON p.id = m.created_by
          WHERE m.room_id = $1
          ORDER BY m.created_at ASC
          LIMIT $2`,

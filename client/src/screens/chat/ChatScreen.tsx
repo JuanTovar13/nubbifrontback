@@ -31,9 +31,9 @@ const shouldShowDateSeparator = (messages: ChatMessage[], index: number): boolea
 
 const shouldShowAvatar = (messages: ChatMessage[], index: number, myId: string): boolean => {
   const msg = messages[index];
-  if (msg.profile_id === myId) return false;
+  if (msg.created_by === myId) return false;
   const next = messages[index + 1];
-  return !next || next.profile_id !== msg.profile_id;
+  return !next || next.created_by !== msg.created_by;
 };
 
 const getInitials = (name?: string) => {
@@ -75,7 +75,7 @@ const MessageBubble = ({ msg, isOwn, showAvatar, showName }: MessageBubbleProps)
                 width: 32,
                 height: 32,
                 borderRadius: "50%",
-                background: getAvatarColor(msg.profile_id),
+                background: getAvatarColor(msg.created_by),
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -105,7 +105,7 @@ const MessageBubble = ({ msg, isOwn, showAvatar, showName }: MessageBubbleProps)
             style={{
               fontSize: 10,
               fontWeight: 700,
-              color: getAvatarColor(msg.profile_id),
+              color: getAvatarColor(msg.created_by),
               fontFamily: fonts.body,
               marginBottom: 3,
               marginLeft: 10,
@@ -361,11 +361,11 @@ export const ChatScreen = () => {
         )}
 
         {messages.map((msg, i) => {
-          const isOwn = msg.profile_id === myId;
+          const isOwn = msg.created_by === myId;
           const showDate = shouldShowDateSeparator(messages, i);
           const showAvatar = shouldShowAvatar(messages, i, myId);
           const prevMsg = messages[i - 1];
-          const showName = !isOwn && (!prevMsg || prevMsg.profile_id !== msg.profile_id || showDate);
+          const showName = !isOwn && (!prevMsg || prevMsg.created_by !== msg.created_by || showDate);
 
           return (
             <div key={msg.id}>

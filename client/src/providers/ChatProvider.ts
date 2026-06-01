@@ -16,7 +16,7 @@ export interface ChatRoom {
 export interface MessagePayload {
   id: string;
   room_id: string;
-  profile_id: string;
+  created_by: string;
   content: string;
   created_at: string;
   profiles: { full_name: string; email: string };

@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks"; // Cambiado a Preact
+import { useState, useEffect } from "preact/hooks";
 import { colors, fonts } from "../../tokens";// Importación de tokens de diseño para usar en los estilos de los componentes
 import { TopBar } from "../../components/PhoneFrame";// Importación del componente TopBar para mostrar la barra superior de la pantalla
 import { BottomNav, familiaNav } from "../../components/BottomNav";// Importación del componente BottomNav y la configuración de navegación para la familia, para mostrar la barra de navegación inferior en la pantalla
@@ -141,8 +141,15 @@ const ActividadCard = ({// Componente para mostrar la información de una activi
 };
 
 export const ActividadesScreen = () => {// Componente principal para mostrar la pantalla de actividades, que utiliza el hook useActividades para obtener la lista de actividades desde la API, y el hook useMiHistorialInteracciones para obtener el historial de interacciones del usuario con las actividades, y muestra una lista de tarjetas de actividades utilizando el componente ActividadCard, junto con la barra superior y la barra de navegación inferior para proporcionar una experiencia de usuario completa y coherente en la pantalla de actividades
-  const { actividades, loading } = useActividades(true);// Utiliza el hook useActividades para obtener la lista de actividades desde la API, pasando true para indicar que solo se deben obtener las actividades disponibles para la familia, lo que permite mostrar esta información en la pantalla de actividades para que los usuarios puedan ver las actividades disponibles para su familia y participar en ellas
-  const { historial, marcarInteres, marcarDeseo } = useMiHistorialInteracciones();// Utiliza el hook useMiHistorialInteracciones para obtener el historial de interacciones del usuario con las actividades, lo que permite mostrar esta información en la pantalla de actividades para que los usuarios puedan ver cómo han interactuado con cada actividad (si han mostrado interés o si desean participar) y para proporcionar las funciones marcarInteres y marcarDeseo para que los usuarios puedan marcar su interés o participación en las actividades directamente desde la pantalla de actividades, lo que mejora la experiencia de usuario al permitirles interactuar con las actividades de manera fácil e intuitiva a través de la interfaz de usuario de la pantalla de actividades
+  const { actividades, loading } = useActividades(true);
+  const { historial, loading: loadingHistorial, marcarInteres, marcarDeseo, marcarAtencion } = useMiHistorialInteracciones();
+
+  useEffect(() => {
+    if (loading || loadingHistorial || actividades.length === 0) return;
+    actividades.forEach((act) => {
+      marcarAtencion(act.id).catch(console.error);
+    });
+  }, [loading, loadingHistorial, actividades]);
 
   return (// El componente principal devuelve un elemento JSX que representa la pantalla de actividades, con una estructura de diseño que incluye una barra superior, una sección principal para mostrar la lista de actividades y una barra de navegación inferior, lo que proporciona una experiencia de usuario completa y coherente en la pantalla de actividades para que los usuarios puedan ver las actividades disponibles para su familia, obtener más información sobre ellas y marcar su interés o participación en ellas de manera fácil e intuitiva a través de la interfaz de usuario de la pantalla de actividades
     <div style={{ display: "flex", flexDirection: "column", overflow: "hidden", height: "100vh", width:"100%" }}>

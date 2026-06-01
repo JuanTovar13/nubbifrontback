@@ -8,13 +8,25 @@ export const createInteraccionService = async (
 ): Promise<Interaccion> => {
   const { actividad_id, atencion = false, interes = false, deseo = false, accion = false } = data;
 
-  const existing = await pool.query(
-    `SELECT id FROM interacciones WHERE actividad_id = $1 AND profile_id = $2 LIMIT 1`,
+  const existing = await pool.query<Interaccion>(
+    `SELECT * FROM interacciones WHERE actividad_id = $1 AND profile_id = $2 LIMIT 1`,
     [actividad_id, profileId]
   );
 
   if (existing.rowCount && existing.rowCount > 0) {
-    throw Boom.conflict("Ya existe una interacción para esta actividad");
+    const row = existing.rows[0];
+    const result = await pool.query<Interaccion>(
+      `UPDATE interacciones
+       SET atencion = atencion OR $1,
+           interes  = interes  OR $2,
+           deseo    = deseo    OR $3,
+           accion   = accion   OR $4,
+           updated_at = NOW()
+       WHERE id = $5
+       RETURNING *`,
+      [atencion, interes, deseo, accion, row.id]
+    );
+    return result.rows[0];
   }
 
   const result = await pool.query<Interaccion>(

@@ -34,7 +34,6 @@ const useQRScanner = (
   const detectedRef = useRef(false);
   const [cameraState, setCameraState] = useState<CameraState>("idle");
   const [supportsTorch, setSupportsTorch] = useState(false);
-  const [fps, setFps] = useState(0);
   const fpsCounterRef = useRef({ frames: 0, lastTime: performance.now() });
 
   const stopCamera = useCallback(() => {
@@ -59,13 +58,10 @@ const useQRScanner = (
       return;
     }
 
-    // FPS counter
-    const now = performance.now();
     fpsCounterRef.current.frames++;
-    if (now - fpsCounterRef.current.lastTime >= 1000) {
-      setFps(fpsCounterRef.current.frames);
+    if (performance.now() - fpsCounterRef.current.lastTime >= 1000) {
       fpsCounterRef.current.frames = 0;
-      fpsCounterRef.current.lastTime = now;
+      fpsCounterRef.current.lastTime = performance.now();
     }
 
     const ctx = canvas.getContext("2d");
@@ -156,7 +152,7 @@ const useQRScanner = (
     return () => stopCamera();
   }, [active, facingMode, scanFrame, stopCamera]);
 
-  return { videoRef, canvasRef, cameraState, stopCamera, supportsTorch, fps };
+  return { videoRef, canvasRef, cameraState, stopCamera, supportsTorch };
 };
 
 // ─── HOOK: Escanear QR desde imagen ──────────────────────────────────────────
@@ -210,7 +206,6 @@ export const EscanearQRScreen = () => {
   const [facingMode, setFacingMode] = useState<FacingMode>("environment");
   const [torchEnabled, setTorchEnabled] = useState(false);
   const [scannedPayload, setScannedPayload] = useState<string | null>(null);
-  const [showFps, setShowFps] = useState(false);
 
   // Modo manual
   const [payload, setPayload] = useState("");
@@ -224,9 +219,6 @@ export const EscanearQRScreen = () => {
   // Historial de sesión
   const [history, setHistory] = useState<ScanHistoryEntry[]>([]);
   const [showHistory, setShowHistory] = useState(false);
-
-  // Zoom (solo indicativo)
-  const [zoomLevel, setZoomLevel] = useState(1);
 
   // Overlay tutorial
   const [showTutorial, setShowTutorial] = useState(false);
@@ -270,7 +262,7 @@ export const EscanearQRScreen = () => {
 
   const cameraActive = mode === "camera" && !scannedPayload && !resultado;
 
-  const { videoRef, canvasRef, cameraState, supportsTorch, fps } = useQRScanner(
+  const { videoRef, canvasRef, cameraState, supportsTorch } = useQRScanner(
     handleDetected,
     cameraActive,
     facingMode,
@@ -537,9 +529,8 @@ export const EscanearQRScreen = () => {
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          background: colors.offWhite,
-          overflowY: "auto",
-          paddingBottom: 80,
+          background: mode === "camera" && !succeeded ? "#0d0d1a" : colors.offWhite,
+          overflow: "hidden",
         }}
       >
         {/* Header */}
@@ -665,7 +656,11 @@ export const EscanearQRScreen = () => {
           </div>
         )}
 
-        <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14 }}>
+        <div style={
+          mode === "camera" && !succeeded
+            ? { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }
+            : { flex: 1, overflowY: "auto", padding: 16, paddingBottom: 80, display: "flex", flexDirection: "column", gap: 14 }
+        }>
 
           {/* ── SUCCESS ───────────────────────────────────────────────────── */}
           {succeeded && (
@@ -788,7 +783,7 @@ export const EscanearQRScreen = () => {
 
           {/* ── MODO CÁMARA ──────────────────────────────────────────────── */}
           {mode === "camera" && !succeeded && (
-            <div>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
               {/* Controles superiores de cámara */}
               {cameraState === "active" && (
                 <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
@@ -836,21 +831,6 @@ export const EscanearQRScreen = () => {
                       {torchEnabled ? "🔦 Encendida" : "🔦 Linterna"}
                     </button>
                   )}
-                  <button
-                    onClick={() => setShowFps((v) => !v)}
-                    style={{
-                      padding: "8px 12px",
-                      background: showFps ? colors.blueLight : "white",
-                      border: `1px solid ${colors.gray200}`,
-                      borderRadius: 10,
-                      fontSize: 11,
-                      cursor: "pointer",
-                      fontFamily: fonts.body,
-                      color: colors.textLight,
-                    }}
-                  >
-                    FPS
-                  </button>
                 </div>
               )}
 
@@ -858,12 +838,10 @@ export const EscanearQRScreen = () => {
               <div
                 style={{
                   position: "relative",
-                  width: "100%",
-                  paddingTop: "100%",
-                  borderRadius: 20,
+                  flex: 1,
+                  minHeight: 0,
                   overflow: "hidden",
                   background: "#0d0d1a",
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
                 }}
               >
                 <video
@@ -885,17 +863,6 @@ export const EscanearQRScreen = () => {
                 {/* Esquinas + línea de escaneo */}
                 {cameraState === "active" && !scannedPayload && (
                   <>
-                    <style>{`
-                      @keyframes scanLine {
-                        0%   { top: 10%; }
-                        50%  { top: 88%; }
-                        100% { top: 10%; }
-                      }
-                      @keyframes pulse-corner {
-                        0%, 100% { opacity: 1; }
-                        50% { opacity: 0.4; }
-                      }
-                    `}</style>
                     {[
                       { top: 14, left: 14, borderTop: true, borderLeft: true },
                       { top: 14, right: 14, borderTop: true, borderRight: true },
@@ -904,71 +871,37 @@ export const EscanearQRScreen = () => {
                     ].map((c, i) => (
                       <div
                         key={i}
+                        className="qr-corner-pulse"
                         style={{
                           position: "absolute",
-                          width: 28,
-                          height: 28,
-                          top: (c as any).top,
-                          left: (c as any).left,
-                          right: (c as any).right,
-                          bottom: (c as any).bottom,
-                          borderColor: colors.teal,
-                          borderStyle: "solid",
+                          width: 28, height: 28,
+                          top: (c as any).top, left: (c as any).left,
+                          right: (c as any).right, bottom: (c as any).bottom,
+                          borderColor: colors.teal, borderStyle: "solid",
                           borderTopWidth: (c as any).borderTop ? 3 : 0,
                           borderLeftWidth: (c as any).borderLeft ? 3 : 0,
                           borderRightWidth: (c as any).borderRight ? 3 : 0,
                           borderBottomWidth: (c as any).borderBottom ? 3 : 0,
                           borderRadius: 5,
-                          animation: "pulse-corner 2s ease-in-out infinite",
                         }}
                       />
                     ))}
-                    {/* Línea animada */}
                     <div
+                      className="qr-scan-line"
                       style={{
-                        position: "absolute",
-                        left: 14,
-                        right: 14,
-                        height: 2,
                         background: `linear-gradient(90deg, transparent, ${colors.teal}cc, ${colors.teal}, ${colors.teal}cc, transparent)`,
                         boxShadow: `0 0 12px ${colors.teal}, 0 0 4px ${colors.teal}`,
-                        animation: "scanLine 2.2s ease-in-out infinite",
                       }}
                     />
-                    {/* Zona central semitransparente */}
                     <div
                       style={{
                         position: "absolute",
-                        top: "18%",
-                        left: "18%",
-                        right: "18%",
-                        bottom: "18%",
+                        top: "18%", left: "18%", right: "18%", bottom: "18%",
                         border: `1px dashed rgba(255,255,255,0.15)`,
-                        borderRadius: 8,
-                        pointerEvents: "none",
+                        borderRadius: 8, pointerEvents: "none",
                       }}
                     />
                   </>
-                )}
-
-                {/* FPS badge */}
-                {cameraState === "active" && showFps && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 10,
-                      right: 10,
-                      background: "rgba(0,0,0,0.6)",
-                      color: fps > 20 ? colors.teal : colors.orange,
-                      fontSize: 10,
-                      fontFamily: fonts.body,
-                      fontWeight: 700,
-                      padding: "3px 8px",
-                      borderRadius: 6,
-                    }}
-                  >
-                    {fps} FPS
-                  </div>
                 )}
 
                 {/* Estados de cámara */}
@@ -1118,7 +1051,7 @@ export const EscanearQRScreen = () => {
                       gap: 6,
                     }}
                   >
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", animation: "pulse-corner 1s ease-in-out infinite" }} />
+                    <div className="qr-dot-pulse" style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e" }} />
                     {facingMode === "environment" ? "Cámara trasera" : "Cámara delantera"}
                     {torchEnabled && " · 🔦"}
                   </div>
@@ -1131,49 +1064,6 @@ export const EscanearQRScreen = () => {
                 </div>
               )}
 
-              {/* Zoom slider — solo visual por ahora */}
-              {cameraState === "active" && (
-                <div style={{ marginTop: 12 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ fontSize: 11, color: colors.textLight, fontFamily: fonts.body }}>
-                      Zoom: {zoomLevel.toFixed(1)}×
-                    </span>
-                    <span style={{ fontSize: 10, color: colors.textLight, fontFamily: fonts.body }}>
-                      (visual)
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min={1}
-                    max={4}
-                    step={0.1}
-                    value={zoomLevel}
-                    onInput={(e) => setZoomLevel(parseFloat((e.target as HTMLInputElement).value))}
-                    style={{ width: "100%", accentColor: colors.teal }}
-                  />
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    {[1, 2, 3, 4].map((z) => (
-                      <button
-                        key={z}
-                        onClick={() => setZoomLevel(z)}
-                        style={{
-                          padding: "4px 10px",
-                          background: zoomLevel === z ? colors.teal : "white",
-                          border: `1px solid ${zoomLevel === z ? colors.teal : colors.gray200}`,
-                          borderRadius: 8,
-                          color: zoomLevel === z ? "white" : colors.textLight,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          cursor: "pointer",
-                          fontFamily: fonts.body,
-                        }}
-                      >
-                        {z}×
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
