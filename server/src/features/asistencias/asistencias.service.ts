@@ -1,5 +1,6 @@
-import { pool } from "../../config/database";// Importación del objeto pool desde el módulo de configuración de la base de datos, lo que permite a este módulo interactuar con la base de datos utilizando este objeto para ejecutar consultas SQL y realizar operaciones relacionadas con las asistencias en la aplicación, mejorando la gestión de la base de datos al centralizar la configuración y el acceso a la base de datos en un módulo específico
-import { getActividadByQrPayloadService } from "../actividades/actividades.service";// Importación del servicio getActividadByQrPayloadService desde el módulo de servicios de actividades, lo que permite a este módulo utilizar este servicio para obtener la información de una actividad específica utilizando el payload de QR, mejorando la organización del código al separar las responsabilidades entre los servicios y facilitando el mantenimiento y la escalabilidad de la aplicación al centralizar la lógica de negocio relacionada con las actividades en los servicios
+import { pool } from "../../config/database";
+import { getActividadByQrPayloadService } from "../actividades/actividades.service";
+import { createInteraccionService } from "../interacciones/interacciones.service";
 import { Asistencia, ScanQRDTO, ScanResult } from "./asistencias.types";// Importación de los tipos Asistencia, ScanQRDTO y ScanResult desde el módulo de tipos de asistencias, lo que permite a este módulo utilizar estos tipos para definir la estructura de los datos relacionados con las asistencias, mejorando la gestión de tipos en la aplicación al centralizar la definición de tipos relacionados con las asistencias en un módulo específico y facilitando su uso en todo el módulo de asistencias
 import Boom from "@hapi/boom";// Importación de la biblioteca Boom para manejar errores HTTP de manera estructurada, lo que permite a este módulo utilizar Boom para lanzar errores HTTP con mensajes y códigos de estado específicos, mejorando la gestión de errores en la aplicación al proporcionar una forma clara y consistente de manejar los errores que puedan ocurrir durante la ejecución de las operaciones relacionadas con las asistencias
 
@@ -27,6 +28,9 @@ export const scanQRService = async (// Función asíncrona para manejar el escan
      RETURNING *`,
     [profileId, actividad.id, qr_payload]
   );
+
+  // Registrar la etapa "Acción" del modelo AIDA
+  await createInteraccionService({ actividad_id: actividad.id, accion: true }, profileId);
 
   return { asistencia: result.rows[0] };// Devuelve un objeto de tipo ScanResult que contiene la información del registro de asistencia que se ha insertado en la base de datos, lo que permite a esta función proporcionar la información del resultado del escaneo de la actividad de manera estructurada y clara, mejorando la gestión de los resultados en la aplicación al definir un tipo específico para el resultado de esta operación y proporcionar la información relevante sobre el registro de asistencia que se ha creado
 };
