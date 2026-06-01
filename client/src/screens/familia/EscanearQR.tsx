@@ -33,8 +33,12 @@ const useQRScanner = (
   const rafRef = useRef<number | null>(null);
   const detectedRef = useRef(false);
   const [cameraState, setCameraState] = useState<CameraState>("idle");
-  const [supportsTorch, setSupportsTorch] = useState(false);
-  const fpsCounterRef = useRef({ frames: 0, lastTime: performance.now() });
+  const fpsCounterRef
+ = useRef({ frames: 0, lastTime: performance.now() });
+
+  // Ref para el callback — mantiene scanFrame estable sin importar re-renders
+  const onDetectedRef = useRef(onDetected);
+  onDetectedRef.current = onDetected;
 
   const stopCamera = useCallback(() => {
     if (rafRef.current) {
@@ -50,6 +54,7 @@ const useQRScanner = (
     setCameraState("idle");
   }, []);
 
+  // Sin dependencias: scanFrame es estable durante toda la vida del hook
   const scanFrame = useCallback(() => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -76,25 +81,13 @@ const useQRScanner = (
 
     if (code?.data && !detectedRef.current) {
       detectedRef.current = true;
-      // Vibrar si está disponible
       if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-      // Dibujar recuadro de detección
-      ctx.strokeStyle = colors.teal;
-      ctx.lineWidth = 4;
-      const { topLeftCorner, topRightCorner, bottomRightCorner, bottomLeftCorner } = code.location;
-      ctx.beginPath();
-      ctx.moveTo(topLeftCorner.x, topLeftCorner.y);
-      ctx.lineTo(topRightCorner.x, topRightCorner.y);
-      ctx.lineTo(bottomRightCorner.x, bottomRightCorner.y);
-      ctx.lineTo(bottomLeftCorner.x, bottomLeftCorner.y);
-      ctx.closePath();
-      ctx.stroke();
-      onDetected(code.data);
+      onDetectedRef.current(code.data);
       return;
     }
 
     rafRef.current = requestAnimationFrame(scanFrame);
-  }, [onDetected]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Toggle linterna
   useEffect(() => {
@@ -136,9 +129,6 @@ const useQRScanner = (
       })
       .then((stream) => {
         streamRef.current = stream;
-        const track = stream.getVideoTracks()[0];
-        const caps = track.getCapabilities?.() as any;
-        setSupportsTorch(!!caps?.torch);
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           videoRef.current.play().then(() => {
@@ -150,9 +140,9 @@ const useQRScanner = (
       .catch(() => setCameraState("denied"));
 
     return () => stopCamera();
-  }, [active, facingMode, scanFrame, stopCamera]);
+  }, [active, facingMode, stopCamera]); // scanFrame es estable (ref pattern)
 
-  return { videoRef, canvasRef, cameraState, stopCamera, supportsTorch };
+  return { videoRef, canvasRef, cameraState, stopCamera };
 };
 
 // ─── HOOK: Escanear QR desde imagen ──────────────────────────────────────────
@@ -260,7 +250,7 @@ export const EscanearQRScreen = () => {
 
   const cameraActive = mode === "camera" && !scannedPayload && !resultado;
 
-  const { videoRef, canvasRef, cameraState } = useQRScanner(
+  const { videoRef, canvasRef, cameraState } = useQRScanner( // eslint-disable-line
     handleDetected,
     cameraActive,
     "environment",
