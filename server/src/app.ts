@@ -7,8 +7,9 @@ import { router as authRouter } from "./features/auth/auth.router";
 import { router as actividadesRouter } from "./features/actividades/actividades.router";
 import { router as asistenciasRouter } from "./features/asistencias/asistencias.router";
 import { router as interaccionesRouter } from "./features/interacciones/interacciones.router";
-import { router as chatRouter } from "./features/chat/chat.router";
-import { initChatGateway } from "./features/chat/chat.gateway";
+import { router as roomsRouter } from './features/rooms/room.router';
+import { router as messagesRouter } from './features/messages/message.router';
+
 
 const app = express();
 
@@ -24,7 +25,9 @@ app.use("/api/auth", authRouter);
 app.use("/api/actividades", actividadesRouter);
 app.use("/api/asistencias", asistenciasRouter);
 app.use("/api/interacciones", interaccionesRouter);
-app.use("/api/chat", chatRouter); // endpoints REST del chat (salas, historial)
+app.use('/api/rooms', roomsRouter);
+app.use('/api/rooms/:roomId/messages', messagesRouter);
+// app.use("/api/chat", chatRouter); // endpoints REST del chat (salas, historial)
 
 // ── Middleware de errores (debe ir al final) ──────────────────────────────────
 app.use(errorsMiddleware);
@@ -35,10 +38,10 @@ app.use(errorsMiddleware);
 const httpServer = createServer(app);
 
 // Inicializar el gateway de chat (Socket.IO) sobre el mismo servidor HTTP
-const io = initChatGateway(httpServer);
+//const io = initChatGateway(httpServer);
 
 // Exportar io por si algún controlador necesita emitir eventos desde fuera del gateway
-export { io };
+//export { io };
 
 const start = async () => {
   if (NODE_ENV !== "production") {

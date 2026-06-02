@@ -31,9 +31,9 @@ const shouldShowDateSeparator = (messages: ChatMessage[], index: number): boolea
 
 const shouldShowAvatar = (messages: ChatMessage[], index: number, myId: string): boolean => {
   const msg = messages[index];
-  if (msg.created_by === myId) return false;
+  if (msg.created_by.id === myId) return false;
   const next = messages[index + 1];
-  return !next || next.created_by !== msg.created_by;
+  return !next || next.created_by.id !== msg.created_by.id;
 };
 
 const getInitials = (name?: string) => {
@@ -55,7 +55,7 @@ interface MessageBubbleProps {
 }
 
 const MessageBubble = ({ msg, isOwn, showAvatar, showName }: MessageBubbleProps) => {
-  const name = msg.profiles?.full_name ?? "Usuario";
+  const name = msg.created_by?.userName ?? "Usuario";
   return (
     <div
       style={{
@@ -75,7 +75,7 @@ const MessageBubble = ({ msg, isOwn, showAvatar, showName }: MessageBubbleProps)
                 width: 32,
                 height: 32,
                 borderRadius: "50%",
-                background: getAvatarColor(msg.created_by),
+                background: getAvatarColor(msg.created_by.id),
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -105,7 +105,7 @@ const MessageBubble = ({ msg, isOwn, showAvatar, showName }: MessageBubbleProps)
             style={{
               fontSize: 10,
               fontWeight: 700,
-              color: getAvatarColor(msg.created_by),
+              color: getAvatarColor(msg.created_by.id),
               fontFamily: fonts.body,
               marginBottom: 3,
               marginLeft: 10,
@@ -361,11 +361,11 @@ export const ChatScreen = () => {
         )}
 
         {messages.map((msg, i) => {
-          const isOwn = msg.created_by === myId;
+          const isOwn = msg.created_by.id === myId;
           const showDate = shouldShowDateSeparator(messages, i);
           const showAvatar = shouldShowAvatar(messages, i, myId);
           const prevMsg = messages[i - 1];
-          const showName = !isOwn && (!prevMsg || prevMsg.created_by !== msg.created_by || showDate);
+          const showName = !isOwn && (!prevMsg || prevMsg.created_by.id !== msg.created_by.id || showDate);
 
           return (
             <div key={msg.id}>

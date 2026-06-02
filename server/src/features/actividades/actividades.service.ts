@@ -2,10 +2,13 @@ import { randomUUID } from "crypto";
 import { pool } from "../../config/database";
 import Boom from "@hapi/boom";
 import { Actividad, CreateActividadDTO, UpdateActividadDTO } from "./actividades.types";
-// Importar la función de emisión del gateway
-import { emitNuevaActividad } from "../chat/chat.gateway";
+import { supabase } from "../../config/supabase";
 
-console.log("CREATE SERVICE HIT");
+const broadcastNuevaActividad = async (actividad: Actividad) => {
+  const channel = supabase.channel('actividades');
+  await channel.httpSend('nueva-actividad', actividad);
+  supabase.removeChannel(channel);
+};
 
 export const createActividadService = async (
   data: CreateActividadDTO,
@@ -33,12 +36,7 @@ export const createActividadService = async (
     );
 
     const actividad = result.rows[0];
-
-    // Emitir la nueva actividad a todos los clientes conectados via WebSocket
-    // Esto hace que aparezca en tiempo real en la pantalla de Actividades
-    // de las familias sin que tengan que recargar la página
-    emitNuevaActividad(actividad);
-
+    broadcastNuevaActividad(actividad);
     return actividad;
   } catch (err) {
     console.error("CREATE ACTIVIDAD ERROR:", err);

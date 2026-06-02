@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { supabase } from "../config/supabase";
 import { pool } from "../config/database";
+import Boom  from "@hapi/boom";
+import { AuthUser } from "@supabase/supabase-js/dist/index.cjs";
 
 export interface AuthRequest extends Request {
   user?: {
@@ -9,6 +11,18 @@ export interface AuthRequest extends Request {
     role: "familia" | "gestor";
   };
 }
+
+interface AuthenticatedRequest extends Request {
+  user?: AuthUser;
+}
+
+export const getUserFromRequest = (req: AuthenticatedRequest): AuthUser => {
+  if (req.user) {
+    return req.user;
+  }
+
+  throw Boom.unauthorized("No autorizado");
+};
 
 export const authMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {

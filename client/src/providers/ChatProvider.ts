@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "preact/hooks";
 import { useAxios } from "./AxiosProvider";
 import { useSocket } from "./SocketProvider";
+import { supabase } from "../config/supabase";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -16,10 +17,9 @@ export interface ChatRoom {
 export interface MessagePayload {
   id: string;
   room_id: string;
-  created_by: string;
+  created_by: { id: string; userName: string; email: string };
   content: string;
   created_at: string;
-  profiles: { full_name: string; email: string };
 }
 
 // Alias para uso interno (mismo shape que MessagePayload)
@@ -38,7 +38,7 @@ export const useRooms = () => {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await axios.get<ChatRoom[]>("/api/chat/rooms");
+      const { data } = await axios.get<ChatRoom[]>("/api/rooms");
       setRooms(data);
     } catch (err: any) {
       setError(err.message ?? "Error obteniendo salas");
@@ -68,7 +68,7 @@ export const useCreateRoom = () => {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await axios.post<ChatRoom>("/api/chat/rooms", {
+      const { data } = await axios.post<ChatRoom>("/api/rooms", {
         name,
         description,
       });
@@ -85,16 +85,9 @@ export const useCreateRoom = () => {
 };
 
 // ─── useMessages ──────────────────────────────────────────────────────────────
-// Carga el historial via REST y luego escucha mensajes nuevos via WebSocket.
-//
-// Flujo:
-// 1. Al montar: GET /api/chat/rooms/:roomId/messages → carga los últimos 50
-// 2. Al montar: socket.emit("join_room") → suscribe al canal WebSocket
-// 3. En tiempo real: escucha "new_message" y agrega al estado local
-// 4. Al desmontar: socket.emit("leave_room") + limpia listener
+// Carga el historial via REST y escucha mensajes nuevos via Supabase Realtime.
 export const useMessages = (roomId: string | null) => {
   const axios = useAxios();
-  const { socket, joinRoom, leaveRoom } = useSocket();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -107,65 +100,58 @@ export const useMessages = (roomId: string | null) => {
 
     setLoading(true);
     axios
-      .get<ChatMessage[]>(`/api/chat/rooms/${roomId}/messages?limit=50`)
+      .get<ChatMessage[]>(`/api/rooms/${roomId}/messages`)
       .then(({ data }) => setMessages(data))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [roomId]);
 
-  // Suscripción WebSocket a mensajes en tiempo real
+  // Suscripción a mensajes en tiempo real via Supabase Realtime broadcast
   useEffect(() => {
-    if (!roomId || !socket) return;
+    if (!roomId) return;
 
-    // Unirse a la sala en el servidor
-    joinRoom(roomId);
+    const channel = supabase
+      .channel(`room:${roomId}`)
+      .on('broadcast', { event: 'new-message' }, ({ payload }) => {
+        const msg = payload as ChatMessage;
+        setMessages((prev) => {
+          if (prev.find((m) => m.id === msg.id)) return prev;
+          return [...prev, msg];
+        });
+      })
+      .subscribe();
 
-    // Handler para mensajes nuevos
-    const handleNewMessage = (msg: ChatMessage) => {
-      // Solo procesar mensajes de esta sala (defensa ante race conditions)
-      if (msg.room_id !== roomId) return;
-
-      setMessages((prev) => {
-        // Evitar duplicados: puede pasar si el mismo usuario recibe el mensaje
-        // tanto por el echo del servidor como por la carga inicial
-        if (prev.find((m) => m.id === msg.id)) return prev;
-        return [...prev, msg];
-      });
-    };
-
-    socket.on("new_message", handleNewMessage);
-
-    // Al salir de la sala o cambiar de roomId, limpiar todo
     return () => {
-      socket.off("new_message", handleNewMessage);
-      leaveRoom(roomId);
+      supabase.removeChannel(channel);
     };
-  }, [roomId, socket]); // se re-ejecuta si cambia la sala o el socket
+  }, [roomId]);
 
   return { messages, loading };
 };
 
 // ─── useSendMessage ───────────────────────────────────────────────────────────
-// Envía un mensaje via WebSocket. El servidor lo persiste y hace el broadcast.
-// No hacemos ningún insert REST desde el cliente: el servidor es la fuente de verdad.
+// Envía un mensaje via REST POST. El servidor lo persiste y hace el broadcast.
 export const useSendMessage = () => {
-  const { sendMessage: socketSend, connected } = useSocket();
+  const axios = useAxios();
   const [sending, setSending] = useState(false);
 
   const sendMessage = async (
     roomId: string,
-    _profileId: string,  // ya no se necesita, el servidor usa el JWT
+    _profileId: string,
     content: string
   ): Promise<boolean> => {
-    if (!content.trim() || !connected) return false;
+    if (!content.trim()) return false;
 
     setSending(true);
-    // El envío WebSocket es síncrono desde la perspectiva del cliente
-    socketSend(roomId, content);
-    // Pequeño delay para que el estado de "enviando" sea visible
-    await new Promise((r) => setTimeout(r, 100));
-    setSending(false);
-    return true;
+    try {
+      await axios.post(`/api/rooms/${roomId}/messages`, { content });
+      return true;
+    } catch (err) {
+      console.error('[Chat] Error enviando mensaje:', err);
+      return false;
+    } finally {
+      setSending(false);
+    }
   };
 
   return { sendMessage, sending };

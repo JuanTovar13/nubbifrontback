@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "preact/hooks";
 import { useAxios } from "./AxiosProvider";
-import { useSocket } from "./SocketProvider";
+import { supabase } from "../config/supabase";
 
 export interface Actividad { // Definición de la interfaz Actividad
   id: string; // ID único de la actividad
@@ -31,63 +31,48 @@ export interface CreateActividadDTO { // DTO para crear una nueva actividad
 //    → la agrega al inicio de la lista sin recargar todo
 export const useActividades = (soloActivas = false) => {
   const axios = useAxios();
-  const { socket } = useSocket();
 
   const [actividades, setActividades] = useState<Actividad[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Carga inicial via REST
   const fetch = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await axios.get<Actividad[]>("/api/actividades");
+      const url = soloActivas ? "/api/actividades?activas=true" : "/api/actividades";
+      const { data } = await axios.get<Actividad[]>(url);
       setActividades(data);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Error cargando actividades");
     } finally {
       setLoading(false);
     }
-  }, [soloActivas]);// La función fetch se memoriza con useCallback para evitar recrearla en cada renderizado, y solo se volverá a crear si cambia el valor de soloActivas
+  }, [soloActivas]);
 
-  // Carga al montar
   useEffect(() => {
     fetch();
   }, [fetch]);
 
-  // Escuchar nuevas actividades en tiempo real via WebSocket
-  // El servidor emite "nueva_actividad" a la sala global "actividades"
-  // cada vez que un gestor crea una nueva
+  // Escuchar nuevas actividades en tiempo real via Supabase Realtime broadcast
   useEffect(() => {
-    if (!socket) return;
+    const channel = supabase
+      .channel('actividades')
+      .on('broadcast', { event: 'nueva-actividad' }, ({ payload }) => {
+        const actividad = payload as Actividad;
+        setActividades((prev) => {
+          if (prev.find((a) => a.id === actividad.id)) return prev;
+          return [actividad, ...prev];
+        });
+      })
+      .subscribe();
 
-    const handleNuevaActividad = (actividad: Actividad) => {
-      // Si solo mostramos activas, verificar que la fecha ya pasó
-      if (soloActivas) {
-        const yaInicio = new Date(actividad.fecha_inicio) <= new Date();
-        if (!yaInicio) return; // ignorar actividades futuras en el modo familia
-      }
-
-      setActividades((prev) => {
-        // Evitar duplicados si la actividad ya está en la lista
-        // (puede pasar si el gestor y la familia están en el mismo dispositivo)
-        if (prev.find((a) => a.id === actividad.id)) return prev;
-
-        // Insertar al inicio para que aparezca arriba como la más reciente
-        return [actividad, ...prev];
-      });
-    };
-
-    socket.on("nueva_actividad", handleNuevaActividad);
-
-    // Limpiar el listener al desmontar
     return () => {
-      socket.off("nueva_actividad", handleNuevaActividad);
+      supabase.removeChannel(channel);
     };
-  }, [socket, soloActivas]);
+  }, [soloActivas]);
 
-  return { actividades, loading, error, refetch: fetch };// El hook devuelve un objeto con la lista de actividades, el estado de carga, el estado de error y una función refetch para volver a cargar las actividades manualmente si es necesario 
+  return { actividades, loading, error, refetch: fetch };
 };
 
 // ─── useCreateActividad ───────────────────────────────────────────────────────
