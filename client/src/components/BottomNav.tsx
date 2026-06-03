@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom"; 
 import { colors, fonts } from "../tokens"; //
 
-interface NavItem {
+export interface NavItem {
   icon: string;
   label: string;
   path: string;

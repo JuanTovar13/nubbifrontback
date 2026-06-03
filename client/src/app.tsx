@@ -6,7 +6,7 @@ import { RoleSelector }          from "./screens/RoleSelector";
 import { LoginScreen }           from "./screens/Login";
 import { HomeFamiliaScreen }     from "./screens/familia/HomeFamilia";
 import { ActividadesScreen }     from "./screens/familia/Actividades";
-import { ComunidadScreen }       from "./screens/familia/Comunidad";
+import { ComunidadScreenFamilia as ComunidadScreen } from "./screens/familia/Comunidad";
 import { EscanearQRScreen }      from "./screens/familia/EscanearQR";
 import { Perfil }                from "./screens/familia/Perfil";
 import { HomeGestorScreen }      from "./screens/gestor/HomeGestor";
