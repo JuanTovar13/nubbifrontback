@@ -82,7 +82,7 @@ export const ComunidadScreen = () => {
             style={{
               background: "white",
               borderRadius: "20px 20px 0 0",
-              padding: "24px 20px 36px",
+              padding: "24px 20px 80px ",
               width: "100%",
             }}
             onClick={(e) => e.stopPropagation()} // evitar cierre al tocar el modal
